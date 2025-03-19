@@ -2,7 +2,7 @@
 # Ignore PDF and text files
 *.pdf
 *.txt
-
+.env
 
 # Python bytecode
 __pycache__/
