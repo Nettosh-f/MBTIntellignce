@@ -1,11 +1,52 @@
-# Ignore specific PDF file
-Adi-Chen-267149-30ffb71f-a3fd-ef11-90cb-000d3a58c2b2.pdf
-Output.txt
 
-# Python virtual environment
-.venv/
+# Ignore PDF and text files
+*.pdf
+*.txt
+
 
 # Python bytecode
 __pycache__/
 *.py[cod]
+
 *$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+*.egg
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Environment variables
+.env
+.env.*
+
+# Logs
+*.log
+logs/
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Local development settings
+local_settings.py
+db.sqlite3
+
