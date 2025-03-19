@@ -1,1 +1,11 @@
+# Ignore specific PDF file
 Adi-Chen-267149-30ffb71f-a3fd-ef11-90cb-000d3a58c2b2.pdf
+Output.txt
+
+# Python virtual environment
+.venv/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
