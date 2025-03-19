@@ -1,10 +1,13 @@
+
 # Ignore PDF and text files
 *.pdf
 *.txt
 
+
 # Python bytecode
 __pycache__/
 *.py[cod]
+
 *$py.class
 
 # Virtual environments
@@ -46,3 +49,4 @@ htmlcov/
 # Local development settings
 local_settings.py
 db.sqlite3
+
