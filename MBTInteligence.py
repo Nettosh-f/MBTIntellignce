@@ -1,4 +1,6 @@
 import PyPDF2
+import tkinter as tk
+from tkinter import scrolledtext, filedialog
 
 
 def extract_text_from_pdf(pdf_path):
@@ -64,22 +66,81 @@ def save_text_to_file(text, output_path):
         print(f"Error saving text to file: {e}")
 
 
+def visualize_text(text, pdf_path):
+    """
+    Display the extracted text in a GUI window.
+    
+    Args:
+        text (str): The extracted text to display
+        pdf_path (str): Path to the PDF file (for window title)
+    """
+    # Create the main window
+    root = tk.Tk()
+    root.title(f"PDF Text Viewer - {pdf_path}")
+    root.geometry("800x600")
+    
+    # Create a frame for buttons
+    button_frame = tk.Frame(root)
+    button_frame.pack(fill=tk.X, padx=5, pady=5)
+    
+    # Create a save button
+    def save_text():
+        file_path = filedialog.asksaveasfilename(
+            defaultextension=".txt",
+            filetypes=[("Text files", "*.txt"), ("All files", "*.*")]
+        )
+        if file_path:
+            save_text_to_file(text, file_path)
+    
+    save_button = tk.Button(button_frame, text="Save Text", command=save_text)
+    save_button.pack(side=tk.LEFT, padx=5)
+    
+    # Create a scrolled text widget to display the text
+    text_area = scrolledtext.ScrolledText(root, wrap=tk.WORD, font=("Courier New", 10))
+    text_area.pack(expand=True, fill=tk.BOTH, padx=5, pady=5)
+    
+    # Insert the text into the text area
+    text_area.insert(tk.INSERT, text)
+    
+    # Make the text read-only
+    text_area.config(state=tk.DISABLED)
+    
+    # Start the GUI event loop
+    root.mainloop()
+
+
 # Example usage
 if __name__ == "__main__":
-    pdf_file_path = input(r"F:\projects\MBTInteligence\Adi-Chen-267149-30ffb71f-a3fd-ef11-90cb-000d3a58c2b2.pdf")
-    output_file_path = input("./Output.txt")
-
-    # Extract text from the PDF
-    text = extract_text_from_pdf(pdf_file_path)
-
-    # If an output path is provided, save the text to a file
-    if output_file_path:
-        # for i in range(text.count("\n--- Page") + 1):
-        #     print(f"\n--- Page {i + 1} ---")
-        save_text_to_file(text, output_file_path)
-
+    pdf_file_path = input("Enter PDF file path (or press Enter for file dialog): ")
+    
+    # If no path is provided, open a file dialog
+    if not pdf_file_path:
+        pdf_file_path = filedialog.askopenfilename(
+            title="Select PDF file",
+            filetypes=[("PDF files", "*.pdf"), ("All files", "*.*")]
+        )
+    
+    if pdf_file_path:
+        # Extract text from the PDF
+        text = extract_text_from_pdf(pdf_file_path)
+        
+        # Ask user if they want to visualize or save the text
+        choice = input("Do you want to (v)isualize the text or (s)ave it to a file? [v/s]: ").lower()
+        
+        if choice == 'v':
+            # Visualize the text in a GUI window
+            visualize_text(text, pdf_file_path)
+        elif choice == 's':
+            output_file_path = input("Enter output file path (or press Enter for file dialog): ")
+            if not output_file_path:
+                output_file_path = filedialog.asksaveasfilename(
+                    defaultextension=".txt",
+                    filetypes=[("Text files", "*.txt"), ("All files", "*.*")]
+                )
+            if output_file_path:
+                save_text_to_file(text, output_file_path)
+        else:
+            print("\nExtracted Text:")
+            print(text)
     else:
-        # Otherwise print the text
-        print("\nExtracted Text:")
-        print(text)
-
+        print("No PDF file selected. Exiting.")
