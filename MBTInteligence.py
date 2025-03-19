@@ -1,6 +1,6 @@
 import PyPDF2
-import tkinter as tk
-from tkinter import scrolledtext, filedialog
+import os
+import glob
 
 
 def extract_text_from_pdf(pdf_path):
@@ -66,81 +66,49 @@ def save_text_to_file(text, output_path):
         print(f"Error saving text to file: {e}")
 
 
-def visualize_text(text, pdf_path):
+def process_pdf_file(pdf_path):
     """
-    Display the extracted text in a GUI window.
+    Process a single PDF file: extract text and save to a text file.
     
     Args:
-        text (str): The extracted text to display
-        pdf_path (str): Path to the PDF file (for window title)
+        pdf_path (str): Path to the PDF file
     """
-    # Create the main window
-    root = tk.Tk()
-    root.title(f"PDF Text Viewer - {pdf_path}")
-    root.geometry("800x600")
+    print(f"\nProcessing: {pdf_path}")
     
-    # Create a frame for buttons
-    button_frame = tk.Frame(root)
-    button_frame.pack(fill=tk.X, padx=5, pady=5)
+    # Extract text from the PDF
+    text = extract_text_from_pdf(pdf_path)
     
-    # Create a save button
-    def save_text():
-        file_path = filedialog.asksaveasfilename(
-            defaultextension=".txt",
-            filetypes=[("Text files", "*.txt"), ("All files", "*.*")]
-        )
-        if file_path:
-            save_text_to_file(text, file_path)
+    # Generate output file path (same name but with .txt extension)
+    output_path = os.path.splitext(pdf_path)[0] + ".txt"
     
-    save_button = tk.Button(button_frame, text="Save Text", command=save_text)
-    save_button.pack(side=tk.LEFT, padx=5)
+    # Save the extracted text
+    save_text_to_file(text, output_path)
+
+
+def process_all_pdfs(directory="."):
+    """
+    Process all PDF files in the specified directory.
     
-    # Create a scrolled text widget to display the text
-    text_area = scrolledtext.ScrolledText(root, wrap=tk.WORD, font=("Courier New", 10))
-    text_area.pack(expand=True, fill=tk.BOTH, padx=5, pady=5)
+    Args:
+        directory (str): Directory to search for PDF files (default: current directory)
+    """
+    # Find all PDF files in the directory
+    pdf_files = glob.glob(os.path.join(directory, "*.pdf"))
     
-    # Insert the text into the text area
-    text_area.insert(tk.INSERT, text)
+    if not pdf_files:
+        print(f"No PDF files found in {directory}")
+        return
     
-    # Make the text read-only
-    text_area.config(state=tk.DISABLED)
+    print(f"Found {len(pdf_files)} PDF file(s) to process.")
     
-    # Start the GUI event loop
-    root.mainloop()
+    # Process each PDF file
+    for pdf_file in pdf_files:
+        process_pdf_file(pdf_file)
+    
+    print("\nAll PDF files have been processed.")
 
 
 # Example usage
 if __name__ == "__main__":
-    pdf_file_path = input("Enter PDF file path (or press Enter for file dialog): ")
-    
-    # If no path is provided, open a file dialog
-    if not pdf_file_path:
-        pdf_file_path = filedialog.askopenfilename(
-            title="Select PDF file",
-            filetypes=[("PDF files", "*.pdf"), ("All files", "*.*")]
-        )
-    
-    if pdf_file_path:
-        # Extract text from the PDF
-        text = extract_text_from_pdf(pdf_file_path)
-        
-        # Ask user if they want to visualize or save the text
-        choice = input("Do you want to (v)isualize the text or (s)ave it to a file? [v/s]: ").lower()
-        
-        if choice == 'v':
-            # Visualize the text in a GUI window
-            visualize_text(text, pdf_file_path)
-        elif choice == 's':
-            output_file_path = input("Enter output file path (or press Enter for file dialog): ")
-            if not output_file_path:
-                output_file_path = filedialog.asksaveasfilename(
-                    defaultextension=".txt",
-                    filetypes=[("Text files", "*.txt"), ("All files", "*.*")]
-                )
-            if output_file_path:
-                save_text_to_file(text, output_file_path)
-        else:
-            print("\nExtracted Text:")
-            print(text)
-    else:
-        print("No PDF file selected. Exiting.")
+    # Process all PDFs in the current directory
+    process_all_pdfs()
