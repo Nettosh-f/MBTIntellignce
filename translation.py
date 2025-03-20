@@ -30,7 +30,7 @@ def translate_to_hebrew(text):
 
 
 def main():
-    file_path = "MBTItxt/Adi-Chen-267149-30ffb71f-a3fd-ef11-90cb-000d3a58c2b2_raw.txt"  # Change to your file path
+    file_path = "MBTItxt/nir-bensinai-MBTI_raw.txt"  # Change to your file path
     text = read_text_file(file_path)
     translated_text = translate_to_hebrew(text)
 
