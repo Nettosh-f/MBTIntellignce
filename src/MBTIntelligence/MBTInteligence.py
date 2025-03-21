@@ -1,43 +1,60 @@
 import PyPDF2
 import os
 import glob
+from dotenv import load_dotenv
+import google.generativeai as genai
+import time
+import re
+
+load_dotenv()
+API_KEY = os.getenv('GEMINI_API_KEY')
+genai.configure(api_key=API_KEY)
 
 
 def extract_text_from_pdf(pdf_path):
-    """
-    Extract all text from a PDF file.
-
-    Args:
-        pdf_path (str): Path to the PDF file
-
-    Returns:
-        str: Extracted text from the PDF
-    """
-    # Create a text string to store the extracted text
     extracted_text = ""
 
     try:
-        # Open the PDF file in read-binary mode
         with open(pdf_path, 'rb') as file:
-            # Create a PDF reader object
             pdf_reader = PyPDF2.PdfReader(file)
-
-            # Get the number of pages in the PDF
             num_pages = len(pdf_reader.pages)
-
-            # Print the number of pages for information
             print(f"PDF has {num_pages} pages.")
 
-            # Extract text from each page
             for page_num in range(num_pages):
-                # Get the page object
+
                 page = pdf_reader.pages[page_num]
-
-                # Extract text from the page
                 page_text = page.extract_text()
+                # pattern = r'^(?:[^\n]*\n){4}(.*\n)(.*\n)(.*)$'
+                # page_text = re.sub(pattern, r'\1\3', page_text, flags=re.MULTILINE)
+                # print(f"Text extracted from page {page_num + 1}:\n" + pattern)
+                if page_num == 0:
+                    remove_list = ["Developed by\n", "Naomi L. Quenk, PhD  \n", "Jean M. Kummerow, PhD\n",
+                                   "Myers-Briggs Type Indicator® Step II™ Interpretive Report  Copyright  2001,",
+                                   " 2003, 2015 by Peter B. Myers and Katharine D. Myers. All rights \n",
+                                   "reserved. Myers-Briggs Type Indicator, Myers-Briggs, MBTI, Step I, Step II, ",
+                                   "the MBTI logo, and The Myers-Briggs Company logo are trade -\n",
+                                   "marks or registered trademarks of The Myers & Briggs Foundation",
+                                   " in the United States and other countries.+1 800 624 1765",
+                                   "  |  www.themyersbriggs.comPrepared for\n"]
+                    for i in range(0, 10):
+                        cut_off_content = remove_list[i]
+                        page_text = page_text.replace(cut_off_content, "")
+                        print(f"successfully extracted text from page {page_num + 1}.")
+                        print(f"Text after removing {cut_off_content}:\n")
+                        print(page_text)
+                    pattern = r'^(?:[^\n]*\n){1}(.*\n)(.*\n)(.*)$'
+                    page_text = re.sub(pattern, r'\1\3', page_text, flags=re.MULTILINE)
+                    print(f"Text extracted from page {page_num + 1}:\n" + pattern)
+                elif page_num == 1:
+                    # Remove content from page 2
+                    page_text = ""
+                    print(f"successfully extracted text from page {page_num + 1}.")
+                    print(page_text)
+                # elif page_num == 2:
+                # elif page_num == 3:
+                # elif page_num == 4:
 
-                # Add the page text to our string with a page separator
-                extracted_text += f"\n--- Page {page_num + 1} ---\n"
+                extracted_text += f"\n--- Page {page_num + 1} ---\n\n"
                 extracted_text += page_text
 
             print("Text extraction completed successfully.")
@@ -50,7 +67,21 @@ def extract_text_from_pdf(pdf_path):
     return extracted_text
 
 
-def save_text_to_file(text, output_path):
+def clean_text_with_generative_ai(text):
+    start_time = time.time()
+    cleaned_text = ""
+    model = genai.GenerativeModel("gemini-2.0-flash")
+    prompt = f"Please clean the following text: {text}, remove all footers and headers, but keep the page count."
+    response = model.generate_content(prompt, generation_config={"temperature": 0.0})
+    response_time = time.time() - start_time
+    cleaned_text = response.text.strip()
+    print(response.usage_metadata)
+    print(f"Response time: {response_time * 1000:.4f} miliseconds")
+    # print("response successful", response.text)
+    return cleaned_text
+
+
+def save_text_to_file(text, file_end, file_path):
     """
     Save extracted text to a text file.
 
@@ -59,6 +90,8 @@ def save_text_to_file(text, output_path):
         output_path (str): Path where to save the text file
     """
     try:
+        filename = os.path.splitext(os.path.basename(file_path))[0] + file_end
+        output_path = os.path.join("./MBTItxt", filename)
         with open(output_path, 'w', encoding='utf-8') as file:
             file.write(text)
         print(f"Text successfully saved to {output_path}")
@@ -68,47 +101,21 @@ def save_text_to_file(text, output_path):
 
 def process_pdf_file(pdf_path):
     """
-    Process a single PDF file: extract text and save to a text file.
-    
+    Process a single PDF file: extract text, clean it, and save to a text file.
+
     Args:
         pdf_path (str): Path to the PDF file
     """
     print(f"\nProcessing: {pdf_path}")
-    
-    # Extract text from the PDF
+
     text = extract_text_from_pdf(pdf_path)
-    
-    # Generate output file path (same name but with .txt extension)
-    output_path = os.path.splitext(pdf_path)[0] + ".txt"
-    
-    # Save the extracted text
-    save_text_to_file(text, output_path)
+    save_text_to_file(text, "_raw.txt", pdf_path)
+
+    # Clean the extracted text using Generative AI
+    # cleaned_text = clean_text_with_generative_ai(text)
+    # # print(cleaned_text)
+    # save_text_to_file(text, "_cleaned.txt", pdf_path)
 
 
-def process_all_pdfs(directory="."):
-    """
-    Process all PDF files in the specified directory.
-    
-    Args:
-        directory (str): Directory to search for PDF files (default: current directory)
-    """
-    # Find all PDF files in the directory
-    pdf_files = glob.glob(os.path.join(directory, "*.pdf"))
-    
-    if not pdf_files:
-        print(f"No PDF files found in {directory}")
-        return
-    
-    print(f"Found {len(pdf_files)} PDF file(s) to process.")
-    
-    # Process each PDF file
-    for pdf_file in pdf_files:
-        process_pdf_file(pdf_file)
-    
-    print("\nAll PDF files have been processed.")
-
-
-# Example usage
 if __name__ == "__main__":
-    # Process all PDFs in the current directory
-    process_all_pdfs()
+    process_pdf_file("MBTIpdfs/nir-bensinai-MBTI.pdf")
