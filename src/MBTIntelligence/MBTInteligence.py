@@ -24,6 +24,7 @@ def extract_text_from_pdf(pdf_path):
 
             # Get the number of pages in the PDF
             num_pages = len(pdf_reader.pages)
+
             # Print the number of pages for information
             print(f"PDF has {num_pages} pages.")
 
