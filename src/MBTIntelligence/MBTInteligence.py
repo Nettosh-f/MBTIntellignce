@@ -4,6 +4,7 @@ import glob
 from dotenv import load_dotenv
 import google.generativeai as genai
 import time
+import re
 
 load_dotenv()
 API_KEY = os.getenv('GEMINI_API_KEY')
@@ -20,32 +21,39 @@ def extract_text_from_pdf(pdf_path):
             print(f"PDF has {num_pages} pages.")
 
             for page_num in range(num_pages):
+
                 page = pdf_reader.pages[page_num]
                 page_text = page.extract_text()
+                # pattern = r'^(?:[^\n]*\n){4}(.*\n)(.*\n)(.*)$'
+                # page_text = re.sub(pattern, r'\1\3', page_text, flags=re.MULTILINE)
+                # print(f"Text extracted from page {page_num + 1}:\n" + pattern)
                 if page_num == 0:
-                    remove_list = ("Developed by\n", "Naomi L. Quenk, PhD  \n", "Jean M. Kummerow, PhD\n",
+                    remove_list = ["Developed by\n", "Naomi L. Quenk, PhD  \n", "Jean M. Kummerow, PhD\n",
                                    "Myers-Briggs Type Indicator® Step II™ Interpretive Report  Copyright  2001,",
                                    " 2003, 2015 by Peter B. Myers and Katharine D. Myers. All rights \n",
                                    "reserved. Myers-Briggs Type Indicator, Myers-Briggs, MBTI, Step I, Step II, ",
                                    "the MBTI logo, and The Myers-Briggs Company logo are trade -\n",
                                    "marks or registered trademarks of The Myers & Briggs Foundation",
                                    " in the United States and other countries.+1 800 624 1765",
-                                   "  |  www.themyersbriggs.comPrepared for\n")
+                                   "  |  www.themyersbriggs.comPrepared for\n"]
                     for i in range(0, 10):
                         cut_off_content = remove_list[i]
                         page_text = page_text.replace(cut_off_content, "")
                         print(f"successfully extracted text from page {page_num + 1}.")
                         print(f"Text after removing {cut_off_content}:\n")
                         print(page_text)
-                    # if page_num == 1:
-                    #     remove_list = ("Developed by\n", "Naomi L. Quenk, PhD  \n", "Jean M. Kummerow, PhD\n",
-                    #                    "Myers-Briggs Type Indicator® Step II™ Interpretive Report  Copyright  2001,",
-                    #                    " 2003, 2015 by Peter B. Myers and Katharine D. Myers. All rights \n",
-                    #                    "reserved. Myers-Briggs Type Indicator, Myers-Briggs, MBTI, Step I, Step II, ",
-                    #                    "the MBTI logo, and The Myers-Briggs Company logo are trade -\n",
-                    #                    "marks or registered trademarks of The Myers & Briggs Foundation",
-                    #                    " in the United States and other countries.+1 800 624 1765",
-                    #                    "  |  www.themyersbriggs.comPrepared for\n")
+                    pattern = r'^(?:[^\n]*\n){1}(.*\n)(.*\n)(.*)$'
+                    page_text = re.sub(pattern, r'\1\3', page_text, flags=re.MULTILINE)
+                    print(f"Text extracted from page {page_num + 1}:\n" + pattern)
+                elif page_num == 1:
+                    # Remove content from page 2
+                    page_text = ""
+                    print(f"successfully extracted text from page {page_num + 1}.")
+                    print(page_text)
+                # elif page_num == 2:
+                # elif page_num == 3:
+                # elif page_num == 4:
+
                 extracted_text += f"\n--- Page {page_num + 1} ---\n\n"
                 extracted_text += page_text
 
