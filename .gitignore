@@ -1,8 +1,13 @@
-
+# TODO add all MBTI folders to this
 # Ignore PDF and text files
 *.pdf
 *.txt
 .env
+
+# Input and Output
+MBTIpdfs/
+MBTItranslated/
+MBTItxt/
 
 # Python bytecode
 __pycache__/
