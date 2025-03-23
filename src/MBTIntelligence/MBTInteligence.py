@@ -50,8 +50,14 @@ def extract_text_from_pdf(pdf_path):
                     page_text = ""
                     print(f"successfully extracted text from page {page_num + 1}.")
                     print(page_text)
-                # elif page_num == 2:
-                # elif page_num == 3:
+                elif page_num == 2:
+                    cut_off_content = "Your Step I™ Results "
+                    page_text = page_text.replace(cut_off_content, "")
+                    print(f"Successfully extracted text from page {page_num + 1}." + cut_off_content)
+                    pattern = r'^(?:[^\n]*\n){1}(.*\n)(.*\n)(.*)$'
+                    page_text = re.sub(pattern, r'\1\3', page_text, flags=re.MULTILINE)
+                    print(f"Text extracted from page {page_num + 1}:\n" + pattern)
+                # # elif page_num == 3:
                 # elif page_num == 4:
 
                 extracted_text += f"\n--- Page {page_num + 1} ---\n\n"
@@ -91,7 +97,7 @@ def save_text_to_file(text, file_end, file_path):
     """
     try:
         filename = os.path.splitext(os.path.basename(file_path))[0] + file_end
-        output_path = os.path.join("./MBTItxt", filename)
+        output_path = os.path.join("F:\projects\MBTInteligence\MBTItxt", filename)
         with open(output_path, 'w', encoding='utf-8') as file:
             file.write(text)
         print(f"Text successfully saved to {output_path}")
@@ -109,7 +115,7 @@ def process_pdf_file(pdf_path):
     print(f"\nProcessing: {pdf_path}")
 
     text = extract_text_from_pdf(pdf_path)
-    save_text_to_file(text, "_raw.txt", pdf_path)
+    save_text_to_file(text, "_cleaned.txt", pdf_path)
 
     # Clean the extracted text using Generative AI
     # cleaned_text = clean_text_with_generative_ai(text)
@@ -118,4 +124,4 @@ def process_pdf_file(pdf_path):
 
 
 if __name__ == "__main__":
-    process_pdf_file("MBTIpdfs/nir-bensinai-MBTI.pdf")
+    process_pdf_file(r"F:\projects\MBTInteligence\MBTIpdfs\nir-bensinai-MBTI.pdf")
