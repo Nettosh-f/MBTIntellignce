@@ -23,8 +23,15 @@ def get_name(file_path):
     else:
         return None
 
+def get_date(file_path):
+    with open(file_path, 'r', encoding='utf-8') as file:
+        lines = file.readlines()
+    if len(lines) >= 5:
+        return lines[4].strip()
+    else:
+        return None
 
 if __name__ == '__main__':
     print(find_type(r'F:\projects\MBTInteligence\MBTItranslated\nir-bensinai-MBTI-cleaned-hebrew.txt'))  # Output: ABC1
-    print(get_name(
-        r'F:\projects\MBTInteligence\MBTItranslated\nir-bensinai-MBTI-cleaned-hebrew.txt'))  # Output: nir-bensinai-MBTI-cleaned-hebrew
+    print(get_name(r'F:\projects\MBTInteligence\MBTItranslated\nir-bensinai-MBTI-cleaned-hebrew.txt'))  # Output: nir-bensinai-MBTI-cleaned-hebrew
+    print(get_date(r'F:\projects\MBTInteligence\MBTItranslated\nir-bensinai-MBTI-cleaned-hebrew.txt'))  # Output: 2023-02-24

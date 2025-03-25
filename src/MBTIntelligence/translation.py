@@ -19,7 +19,8 @@ def translate_to_hebrew(text):
     prompt = (
         f"You are a professional english-hebrew translator and a proficient in MBTI terminology."
         f" Translate the following text to Hebrew:\n{text}, make sure to output nothing but the translated text. "
-        f"wherever it is necessary, concat broken paragraphs into one.")
+        f"wherever it is necessary. whenever possible, split all to 120 caracter per line, without shortening or losing"
+        f" meaning. make sure all information makes sense to read.")
     response = model.generate_content(prompt, generation_config={"temperature": 0.0})
     end_time = time.time()
     response_time = end_time - start_time
