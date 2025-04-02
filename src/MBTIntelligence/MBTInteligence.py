@@ -29,18 +29,6 @@ def extract_text_from_pdf(pdf_path, lines_to_remove_by_page=None):
             # Initialize lines_to_remove_by_page if not provided
             if lines_to_remove_by_page is None:
                 lines_to_remove_by_page = {}
-
-                # # Add your default removals (like your current hardcoded ones)
-                # lines_to_remove_by_page[0] = ["Developed by\n", "Naomi L. Quenk, PhD  \n", "Jean M. Kummerow, PhD\n",
-                #                               "Myers-Briggs Type Indicator® Step II™ Interpretive Report  Copyright  2001,",
-                #                               " 2003, 2015 by Peter B. Myers and Katharine D. Myers. All rights \n",
-                #                               "reserved. Myers-Briggs, MBTI, Step I, Step II, ",
-                #                               "the MBTI logo, and The Myers-Briggs Company logo are trade -\n",
-                #                               "marks or registered trademarks of The Myers & Briggs Foundation",
-                #                               " in the United States and other countries.+1 800 624 1765",
-                #                               "  |  www.themyersbriggs.comPrepared for\n"]
-
-                # Skip page 1 completely (your current page_num == 1 case)
                 lines_to_remove_by_page[1] = "ALL"
 
             for page_num in range(num_pages):
@@ -122,25 +110,25 @@ def process_pdf_file(pdf_path: object, lines_to_remove_config: object = None) ->
 if __name__ == "__main__":
     # Process a single file with custom line removal configuration
     process_pdf_file(
-        r"F:\projects\MBTInteligence\MBTIpdfs\nir-bensinai-MBTI.pdf",
+        r"F:\projects\MBTInteligence\MBTIpdfs\asaf-solomon-267149-4ae2ac9c-005e-ef11-bdfd-6045bd04b01a.pdf",
         lines_to_remove_config={
             0: [0, 1, 2, 3, 4, 5, 6, 7],
             1: "ALL",  # Skip entire page
             2: [0, 1, 2, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37,
-                38, 39, 40, 41, 43, 44, 45, 46],
+                38, 39, 40],
             3: "ALL",
             4: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
                 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39],
             5: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
                 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39],
             6: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
-                28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39],
+                28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40],
             7: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
-                28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39],
+                28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38],
             8: [0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11],
             9: [0, 1, 2, 3, 4, 5, 6, 7, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49],
-            10: [0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11],
-            11: [0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 39, 40, 41, 42],
+            10: [0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+            11: [0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12],
             12: [0, 1, 2, 4, 5, 6, 7, 8, 27, 28, 29, 30, 31],
             13: [0, 1, 2, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29],
             14: "ALL",
@@ -154,7 +142,7 @@ if __name__ == "__main__":
 
     # Alternatively, process all PDFs in a directory with default configuration
     """
-    pdf_dir = "F:\projects\MBTInteligence\MBTIpdfs"
+    pdf_dir = r"F:\projects\MBTInteligence\MBTIpdfs"
     for pdf_file in glob.glob(os.path.join(pdf_dir, "*.pdf")):
         process_pdf_file(pdf_file)
     """
