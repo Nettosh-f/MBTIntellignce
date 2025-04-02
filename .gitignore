@@ -3,6 +3,7 @@
 *.pdf
 *.txt
 .env
+!requirements.txt
 
 # Input and Output
 MBTIpdfs/
