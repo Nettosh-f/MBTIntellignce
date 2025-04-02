@@ -3,6 +3,7 @@
 *.pdf
 *.txt
 .env
+!requirements.txt
 
 # Input and Output
 MBTIpdfs/
@@ -14,6 +15,7 @@ __pycache__/
 *.py[cod]
 
 *$py.class
+
 
 # Virtual environments
 .venv/
