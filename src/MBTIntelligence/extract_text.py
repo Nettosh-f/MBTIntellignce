@@ -4,6 +4,7 @@ import glob
 from dotenv import load_dotenv
 import time
 import re
+from typing import Dict, Union, List
 
 
 def extract_text_from_pdf(pdf_path, lines_to_remove_by_page=None):
@@ -89,22 +90,29 @@ def save_text_to_file(text, file_end, file_path):
         print(f"Error saving text to file: {e}")
 
 
-def process_pdf_file(pdf_path: object, lines_to_remove_config: object = None) -> object:
-    """
-    Process a single PDF file: extract text, clean it, and save to a text file.
+def process_pdf_file(file_path: str, lines_to_remove_config: Dict[int, Union[str, List[int]]]) -> str:
+    output_file_path = os.path.splitext(file_path)[0] + "-cleaned.txt"
 
-    Args:
-        pdf_path (str): Path to the PDF file
-        lines_to_remove_config (dict, optional): Configuration for line removal by page
-    """
-    print(f"\nProcessing: {pdf_path}")
+    with open(file_path, 'rb') as file:
+        pdf_reader = PyPDF2.PdfReader(file)
+        num_pages = len(pdf_reader.pages)
 
-    text = extract_text_from_pdf(pdf_path, lines_to_remove_config)
-    save_text_to_file(text, "-cleaned.txt", pdf_path)
+        with open(output_file_path, 'w', encoding='utf-8') as output_file:
+            for page_num in range(num_pages):
+                page = pdf_reader.pages[page_num]
+                text = page.extract_text().split('\n')
 
-    # Uncomment if you want to use Gemini to clean the text further
-    # cleaned_text = clean_text_with_generative_ai(text)
-    # save_text_to_file(cleaned_text, "_ai_cleaned.txt", pdf_path)
+                if page_num in lines_to_remove_config:
+                    config = lines_to_remove_config[page_num]
+                    if config == "ALL":
+                        continue
+                    elif isinstance(config, list):
+                        text = [line for i, line in enumerate(text) if i not in config]
+
+                output_file.write(f"--- Page {page_num + 1} ---\n")
+                output_file.write('\n'.join(text) + '\n\n')
+
+    return output_file_path
 
 
 if __name__ == "__main__":

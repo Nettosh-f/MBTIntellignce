@@ -12,3 +12,34 @@ large social gatherings.\nAre willing to introduce people to each other if no on
 necessary.\"\n remove all empty rows, keep the seperation to pages as '--- page {number} ---' make sure to translate
 extroversion and introversion into 'מוחצנות' and 'מופנמות' respectively.
  """
+MBTI_TYPES = [
+    "ISTJ", "ISFJ", "INFJ", "INTJ",
+    "ISTP", "ISFP", "INFP", "INTP",
+    "ESTP", "ESFP", "ENFP", "ENTP",
+    "ESTJ", "ESFJ", "ENFJ", "ENTJ"
+]
+MBTI_QUALITIES = [
+    "Extraversion", "Introversion",
+    "Sensing", "Intuition",
+    "Thinking", "Feeling",
+    "Judging", "Perceiving"
+]
+# Mapping of MBTI types to their qualities
+MBTI_TYPE_QUALITIES = {
+    "ISTJ": ["Introversion", "Sensing", "Thinking", "Judging"],
+    "ISFJ": ["Introversion", "Sensing", "Feeling", "Judging"],
+    "INFJ": ["Introversion", "Intuition", "Feeling", "Judging"],
+    "INTJ": ["Introversion", "Intuition", "Thinking", "Judging"],
+    "ISTP": ["Introversion", "Sensing", "Thinking", "Perceiving"],
+    "ISFP": ["Introversion", "Sensing", "Feeling", "Perceiving"],
+    "INFP": ["Introversion", "Intuition", "Feeling", "Perceiving"],
+    "INTP": ["Introversion", "Intuition", "Thinking", "Perceiving"],
+    "ESTP": ["Extraversion", "Sensing", "Thinking", "Perceiving"],
+    "ESFP": ["Extraversion", "Sensing", "Feeling", "Perceiving"],
+    "ENFP": ["Extraversion", "Intuition", "Feeling", "Perceiving"],
+    "ENTP": ["Extraversion", "Intuition", "Thinking", "Perceiving"],
+    "ESTJ": ["Extraversion", "Sensing", "Thinking", "Judging"],
+    "ESFJ": ["Extraversion", "Sensing", "Feeling", "Judging"],
+    "ENFJ": ["Extraversion", "Intuition", "Feeling", "Judging"],
+    "ENTJ": ["Extraversion", "Intuition", "Thinking", "Judging"]
+}

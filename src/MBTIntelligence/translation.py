@@ -1,14 +1,15 @@
 from dotenv import load_dotenv
-from openai import OpenAI
+from openai import AsyncOpenAI
 import os
 import time
+import asyncio
 
-from consts import SYSTEM_PROMPT
+from .consts import SYSTEM_PROMPT
 print(SYSTEM_PROMPT)
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-client = OpenAI(api_key=OPENAI_API_KEY)
+client = AsyncOpenAI(api_key=OPENAI_API_KEY)
 
 
 def read_text_file(file_path):
@@ -16,11 +17,11 @@ def read_text_file(file_path):
         return file.read()
 
 
-def translate_to_hebrew(text):
+async def translate_to_hebrew(text):
     start_time = time.time()
     try:
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
+        response = await client.chat.completions.create(
+            model="gpt-4o-mini",  # Make sure this is the correct model you want to use
             messages=[
                 {
                     "role": "system",
@@ -54,10 +55,10 @@ def translate_to_hebrew(text):
         return None
 
 
-def main():
+async def main():
     file_path = r"F:\projects\MBTInteligence\MBTItxt\asaf-solomon-267149-4ae2ac9c-005e-ef11-bdfd-6045bd04b01a-cleaned.txt"
     text = read_text_file(file_path)
-    translated_text = translate_to_hebrew(text)
+    translated_text = await translate_to_hebrew(text)
 
     if translated_text:
         # Save the Hebrew output without fixed text
@@ -71,4 +72,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
