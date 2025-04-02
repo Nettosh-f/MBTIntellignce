@@ -1,5 +1,5 @@
 import re
-from utils import get_all_info, extract_mbti_qualities_scores
+from .utils import get_all_info, extract_mbti_qualities_scores
 
 
 def format_mbti_string(mbti_page3):
