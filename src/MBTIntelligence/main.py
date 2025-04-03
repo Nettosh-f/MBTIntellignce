@@ -1,11 +1,15 @@
+# -*- coding: utf-8 -*-
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import os
 import asyncio
+import shutil
 from .extract_text import process_pdf_file
 from .translation import translate_to_hebrew
-from .fixed_text import insert_fixed_text
+from .fixed_text import insert_fixed_text, format_mbti_string
 from .mbti_to_pdf import generate_mbti_report
+from .utils import get_all_info, extract_mbti_qualities_scores
+from .consts import fixed_text_const
 
 
 class MBTIProcessorGUI:
@@ -33,15 +37,27 @@ class MBTIProcessorGUI:
         self.generate_pdf_button.pack(pady=5)
 
         self.file_path = None
+        self.input_file_path = None
         self.cleaned_text_path = None
         self.translated_text_path = None
         self.fixed_text_path = None
 
+        # Get the root directory of the package
+        self.root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        self.input_dir = os.path.join(self.root_dir, "input")
+        os.makedirs(self.input_dir, exist_ok=True)  # Create input directory if it doesn't exist
+
     def select_file(self):
         self.file_path = filedialog.askopenfilename(filetypes=[("PDF files", "*.pdf")])
         if self.file_path:
+            # Copy the selected file to the input directory
+            input_filename = os.path.basename(self.file_path)
+            self.input_file_path = os.path.join(self.input_dir, input_filename)
+            shutil.copy2(self.file_path, self.input_file_path)
+
             self.extract_button['state'] = tk.NORMAL
-            self.label.config(text=f"Selected file: {os.path.basename(self.file_path)}")
+            self.label.config(text=f"Selected file: {input_filename}")
+            messagebox.showinfo("File Copied", f"File has been copied to the input folder:\n{self.input_file_path}")
 
     def extract_text(self):
         try:
@@ -93,16 +109,18 @@ class MBTIProcessorGUI:
         try:
             with open(self.cleaned_text_path, 'r', encoding='utf-8') as f:
                 text = f.read()
-            
+
             translated_text = await translate_to_hebrew(text)
-            
+
             if translated_text is None:
                 raise ValueError("Translation failed. No Hebrew text was generated.")
-            
-            self.translated_text_path = os.path.splitext(self.cleaned_text_path)[0] + "-hebrew.txt"
+            output_dir = os.path.join(self.root_dir, "output")
+            os.makedirs(output_dir, exist_ok=True)
+            output_filename = os.path.splitext(os.path.basename(self.input_file_path))[0] + "_hebrew.txt"
+            self.translated_text_path = os.path.join(output_dir, output_filename)
             with open(self.translated_text_path, 'w', encoding='utf-8') as f:
                 f.write(translated_text)
-            
+
             messagebox.showinfo("Success", f"Text translated successfully.\nOutput: {self.translated_text_path}")
             self.insert_fixed_text_button['state'] = tk.NORMAL
         except Exception as e:
@@ -113,12 +131,15 @@ class MBTIProcessorGUI:
 
     def insert_fixed_text(self):
         try:
-            fixed_text_config = {
-                # ... (define your fixed text configuration here)
-            }
-            self.fixed_text_path = os.path.splitext(self.translated_text_path)[0] + "-fixed.txt"
+            mbti_info = get_all_info(self.translated_text_path)
+            mbti_page3 = extract_mbti_qualities_scores(self.translated_text_path)
+            print(f"MBTI info:{mbti_info}")
+            fixed_text_config = fixed_text_const
+            output_dir = os.path.join(self.root_dir, "output")
+            os.makedirs(output_dir, exist_ok=True)
+            output_filename = os.path.splitext(os.path.basename(self.input_file_path))[0] + "_fixed.txt"
+            self.fixed_text_path = os.path.join(output_dir, output_filename)
             insert_fixed_text(self.translated_text_path, self.fixed_text_path, fixed_text_config)
-            
             messagebox.showinfo("Success", f"Fixed text inserted successfully.\nOutput: {self.fixed_text_path}")
             self.generate_pdf_button['state'] = tk.NORMAL
         except Exception as e:
@@ -126,13 +147,18 @@ class MBTIProcessorGUI:
 
     def generate_pdf(self):
         try:
-            output_html = os.path.splitext(self.file_path)[0] + "_report.html"
-            output_pdf = os.path.splitext(self.file_path)[0] + "_report.pdf"
-            logo_path = r"F:\projects\MBTInteligence\media\full_logo.png"
-            
+            output_dir = os.path.join(self.root_dir, "output")
+            os.makedirs(output_dir, exist_ok=True)
+
+            output_html = os.path.join(output_dir,
+                                       os.path.splitext(os.path.basename(self.input_file_path))[0] + "_report.html")
+            output_pdf = os.path.join(output_dir,
+                                      os.path.splitext(os.path.basename(self.input_file_path))[0] + "_report.pdf")
+            logo_path = os.path.join(self.root_dir, "media", "full_logo.png")
+
             if not os.path.exists(logo_path):
                 raise FileNotFoundError(f"Logo file not found at {logo_path}")
-            
+
             generate_mbti_report(self.fixed_text_path, output_html, output_pdf, logo_path)
 
             if not os.path.exists(output_pdf):
@@ -141,6 +167,7 @@ class MBTIProcessorGUI:
             messagebox.showinfo("Success", f"PDF generated successfully!\nOutput PDF: {output_pdf}")
         except Exception as e:
             messagebox.showerror("Error", f"An error occurred while generating the PDF: {str(e)}")
+
 
 if __name__ == "__main__":
     root = tk.Tk()

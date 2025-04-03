@@ -1,9 +1,13 @@
 import re
 from .utils import get_all_info, extract_mbti_qualities_scores
+from .consts import MBTI_QUALITIES_HEBREW
 
 
 def format_mbti_string(mbti_page3):
-    formatted_items = [f"{quality} : {score}" for quality, score in mbti_page3.items()]
+    formatted_items = []
+    for quality, score in mbti_page3.items():
+        hebrew_quality = MBTI_QUALITIES_HEBREW.get(quality, quality)  # Use English if Hebrew not found
+        formatted_items.append(f"{hebrew_quality}: {score}")
     return " | ".join(formatted_items)
 
 
@@ -112,11 +116,7 @@ if __name__ == "__main__":
             1: f"טיפוס האישיות שלך כפי שדווח: {mbti_info['MBTI Type']}",
             2: f"ההעדפות שלך הן\n{format_mbti_string(mbti_page3)}",
             6: "DELETE",
-            5: "DELETE"}
-#             4: """האם הטיפוס הזה מתאים לך?\n שים לב לחלקים בתיאור הקודם שמתאימים לך ולכל חלק שלא. תוצאות שלב 2 שלך
-# בעמודים הבאים עשויות לעזור להבהיר כל תחום שלא מתאר אותך היטב. אם טיפוס שלב 1 שדיווחת עליו אינו מתאים,
-# תוצאות שלב 2 שלך עשויות לעזור להציע טיפוס אחר שמדויק יותר עבורך."""}
-        ,
+            5: "DELETE"},
         4: {1: """תוצאות שלב 2 שלך
 הערכת MBTI Step II מסבירה חלק מהמורכבות של האישיות שלך על ידי הצגת התוצאות שלך בחמישה חלקים שונים, או ׳פנים׳, עבור כל אחד מזוגות ההעדפות של שלב 1.
 התעמקות בתוצאות שלך ב-20 הפנים הללו יכולה לעזור לך להבין טוב יותר את הדרך הייחודית שלך לחוות ולבטא את הטיפוס שלך.

@@ -1,6 +1,9 @@
 import re
 from typing import Optional, Dict, List
-from .consts import MBTI_TYPES, MBTI_QUALITIES, MBTI_TYPE_QUALITIES
+try:
+    from .consts import MBTI_TYPES, MBTI_QUALITIES, MBTI_TYPE_QUALITIES
+except ImportError:
+    from consts import MBTI_TYPES, MBTI_QUALITIES, MBTI_TYPE_QUALITIES
 
 
 def find_type(file_path: str) -> Optional[str]:
@@ -14,14 +17,19 @@ def find_type(file_path: str) -> Optional[str]:
 
 def get_name(file_path: str) -> Optional[str]:
     with open(file_path, 'r', encoding='utf-8') as file:
-        lines = file.readlines()
-    return lines[3].strip() if len(lines) >= 4 else None
+        file.readline()
+        second_line = file.readline().strip()
+        return second_line if second_line else None
 
 
 def get_date(file_path: str) -> Optional[str]:
     with open(file_path, 'r', encoding='utf-8') as file:
         content = file.read()
-    date_match = re.search(r'\d{2}/\d{2}/\d{4}', content)
+
+    # Hebrew date pattern: day month year
+    hebrew_date_pattern = r'\d{1,2}\s+ב?[א-ת]+\s+\d{4}'
+
+    date_match = re.search(hebrew_date_pattern, content)
     return date_match.group() if date_match else None
 
 
@@ -39,13 +47,29 @@ def extract_mbti_qualities_scores(file_path: str) -> Dict[str, int]:
     mbti_type = find_type(file_path)
 
     if mbti_type:
-        type_qualities = MBTI_TYPE_QUALITIES[mbti_type]
         with open(file_path, 'r', encoding='utf-8') as file:
             content = file.read()
 
-        for quality in type_qualities:
-            match = re.search(rf'{quality}\s+(\d+)', content)
-            if match:
-                qualities_scores[quality] = int(match.group(1))
+        # Pattern to match a line with מוחצנות or מופנמות and extract all numbers
+        pattern = r'(מוחצנות|מופנמות).*?(\d+).*?(\d+).*?(\d+).*?(\d+)'
+        match = re.search(pattern, content, re.DOTALL)
+
+        if match:
+            qualities = ['Extraversion', 'Sensing', 'Thinking', 'Judging']
+            for i, quality in enumerate(qualities):
+                qualities_scores[quality] = int(match.group(i + 2))
 
     return qualities_scores
+
+
+if  __name__ == "__main__":
+    file_path = r"F:\projects\MBTInteligence\output\nir-bensinai-MBTI_hebrew.txt"  # Replace with your file path
+    info = get_all_info(file_path)
+    print(f"Name: {info['name']}")
+    print(f"Date: {info['date']}")
+    print(f"MBTI Type: {info['type']}")
+
+    qualities_scores = extract_mbti_qualities_scores(file_path)
+    print("MBTI Qualities Scores:")
+    for quality, score in qualities_scores.items():
+        print(f"{quality}: {score}")
