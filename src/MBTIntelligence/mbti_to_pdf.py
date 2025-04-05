@@ -87,6 +87,17 @@ def generate_html_content(header_image_url, pages, total_pages, footer_static_te
                 margin-bottom: 30px;
                 color: #333;
             }}
+            .first-page {{
+                text-align: center;
+            }}
+            .first-page-title {{
+                font-size: 24px;
+                font-weight: bold;
+                margin-bottom: 50px;
+                color: #333;
+                text-decoration: underline;
+
+            }}
         </style>
     </head>
     <body>
@@ -97,19 +108,34 @@ def generate_html_content(header_image_url, pages, total_pages, footer_static_te
         page_number_text = f"עמוד {index + 1} מתוך {total_pages}"
         page_html = page.replace('\n', '<br>')
 
-        html_body += f"""
-        <div class="page">
-            <header><img src="{header_image_url}" alt="Header Image"></header>
-            <footer>
-                <div>{page_number_text}</div>
-                <div>{footer_static_text}</div>
-            </footer>
-            <main>
-                <div class="page-title">{page_number_text}</div>
-                {page_html}
-            </main>
-        </div>
-        """
+        if index == 0:
+            html_body += f"""
+            <div class="page first-page">
+                <header><img src="{header_image_url}" alt="Header Image"></header>
+                <footer>
+                    <div>{page_number_text}</div>
+                    <div>{footer_static_text}</div>
+                </footer>
+                <main>
+                    <div class="first-page-title">{first_page_title}</div>
+                    <p>{page_html}</p>
+                </main>
+            </div>
+            """
+        else:
+            html_body += f"""
+            <div class="page">
+                <header><img src="{header_image_url}" alt="Header Image"></header>
+                <footer>
+                    <div>{page_number_text}</div>
+                    <div>{footer_static_text}</div>
+                </footer>
+                <main>
+                    <div class="page-title">{page_number_text}</div>
+                    <p>{page_html}</p>
+                </main>
+            </div>
+            """
 
     html_footer = "</body></html>"
 
@@ -121,5 +147,7 @@ if __name__ == "__main__":
     output_html = r'F:\projects\MBTInteligence\html files\mbti_report.html'
     output_pdf = r'F:\projects\MBTInteligence\MBTIpdfs\mbti_report.pdf'
     logo_path = r"F:\projects\Temp\full_logo.png"
+    first_page_title = "דו״ח בתרגום לעברית עבור: "
 
-    generate_mbti_report(input_file, output_html, output_pdf, logo_path)
+    generate_mbti_report(input_file, output_html, output_pdf, logo_path, first_page_title)
+

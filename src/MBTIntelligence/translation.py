@@ -1,11 +1,11 @@
-from dotenv import load_dotenv
-from openai import AsyncOpenAI
 import os
 import time
 import asyncio
+from dotenv import load_dotenv
+from openai import AsyncOpenAI
+
 
 from .consts import SYSTEM_PROMPT
-print(SYSTEM_PROMPT)
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')

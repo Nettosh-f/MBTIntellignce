@@ -9,14 +9,14 @@ from .translation import translate_to_hebrew
 from .fixed_text import insert_fixed_text, format_mbti_string
 from .mbti_to_pdf import generate_mbti_report
 from .utils import get_all_info, extract_mbti_qualities_scores
-from .consts import fixed_text_const
+from .consts import fixed_text
 
 
 class MBTIProcessorGUI:
     def __init__(self, master):
         self.master = master
         master.title("MBTI Processor")
-        master.geometry("400x300")
+        master.geometry("400x200")
 
         self.label = tk.Label(master, text="Select MBTI PDF file to process:")
         self.label.pack(pady=10)
@@ -24,17 +24,8 @@ class MBTIProcessorGUI:
         self.select_button = tk.Button(master, text="Select File", command=self.select_file)
         self.select_button.pack(pady=5)
 
-        self.extract_button = tk.Button(master, text="1. Extract Text", command=self.extract_text, state=tk.DISABLED)
-        self.extract_button.pack(pady=5)
-
-        self.translate_button = tk.Button(master, text="2. Translate to Hebrew", command=self.translate_text, state=tk.DISABLED)
-        self.translate_button.pack(pady=5)
-
-        self.insert_fixed_text_button = tk.Button(master, text="3. Insert Fixed Text", command=self.insert_fixed_text, state=tk.DISABLED)
-        self.insert_fixed_text_button.pack(pady=5)
-
-        self.generate_pdf_button = tk.Button(master, text="4. Generate PDF", command=self.generate_pdf, state=tk.DISABLED)
-        self.generate_pdf_button.pack(pady=5)
+        self.process_button = tk.Button(master, text="Process MBTI Report", command=self.process_report_wrapper, state=tk.DISABLED)
+        self.process_button.pack(pady=20)
 
         self.file_path = None
         self.input_file_path = None
@@ -55,12 +46,13 @@ class MBTIProcessorGUI:
             self.input_file_path = os.path.join(self.input_dir, input_filename)
             shutil.copy2(self.file_path, self.input_file_path)
 
-            self.extract_button['state'] = tk.NORMAL
+            self.process_button['state'] = tk.NORMAL
             self.label.config(text=f"Selected file: {input_filename}")
             messagebox.showinfo("File Copied", f"File has been copied to the input folder:\n{self.input_file_path}")
 
-    def extract_text(self):
+    async def process_report(self):
         try:
+            # Step 1: Extract Text
             lines_to_remove_config = {
                 0: [0, 1, 2, 3, 4, 5, 6, 7],
                 1: "ALL",  # Skip entire page
@@ -100,13 +92,7 @@ class MBTIProcessorGUI:
             if cleaned_text_path_str == "None" or not os.path.exists(cleaned_text_path_str):
                 raise ValueError(f"PDF processing failed. No output file was generated at expected path: {cleaned_text_path_str}")
 
-            messagebox.showinfo("Success", f"Text extracted successfully.\nOutput: {cleaned_text_path_str}")
-            self.translate_button['state'] = tk.NORMAL
-        except Exception as e:
-            messagebox.showerror("Error", f"An error occurred during text extraction: {str(e)}")
-
-    async def translate_text_async(self):
-        try:
+            # Step 2: Translate to Hebrew
             with open(self.cleaned_text_path, 'r', encoding='utf-8') as f:
                 text = f.read()
 
@@ -121,52 +107,34 @@ class MBTIProcessorGUI:
             with open(self.translated_text_path, 'w', encoding='utf-8') as f:
                 f.write(translated_text)
 
-            messagebox.showinfo("Success", f"Text translated successfully.\nOutput: {self.translated_text_path}")
-            self.insert_fixed_text_button['state'] = tk.NORMAL
-        except Exception as e:
-            messagebox.showerror("Error", f"An error occurred during translation: {str(e)}")
-
-    def translate_text(self):
-        asyncio.run(self.translate_text_async())
-
-    def insert_fixed_text(self):
-        try:
+            # Step 3: Insert Fixed Text
             mbti_info = get_all_info(self.translated_text_path)
             mbti_page3 = extract_mbti_qualities_scores(self.translated_text_path)
-            print(f"MBTI info:{mbti_info}")
-            fixed_text_config = fixed_text_const
-            output_dir = os.path.join(self.root_dir, "output")
-            os.makedirs(output_dir, exist_ok=True)
+            fixed_text_config = fixed_text(mbti_info, mbti_page3)
             output_filename = os.path.splitext(os.path.basename(self.input_file_path))[0] + "_fixed.txt"
             self.fixed_text_path = os.path.join(output_dir, output_filename)
             insert_fixed_text(self.translated_text_path, self.fixed_text_path, fixed_text_config)
-            messagebox.showinfo("Success", f"Fixed text inserted successfully.\nOutput: {self.fixed_text_path}")
-            self.generate_pdf_button['state'] = tk.NORMAL
-        except Exception as e:
-            messagebox.showerror("Error", f"An error occurred while inserting fixed text: {str(e)}")
 
-    def generate_pdf(self):
-        try:
-            output_dir = os.path.join(self.root_dir, "output")
-            os.makedirs(output_dir, exist_ok=True)
-
-            output_html = os.path.join(output_dir,
-                                       os.path.splitext(os.path.basename(self.input_file_path))[0] + "_report.html")
-            output_pdf = os.path.join(output_dir,
-                                      os.path.splitext(os.path.basename(self.input_file_path))[0] + "_report.pdf")
+            # Step 4: Generate PDF
+            output_html = os.path.join(output_dir, os.path.splitext(os.path.basename(self.input_file_path))[0] + "_report.html")
+            output_pdf = os.path.join(output_dir, os.path.splitext(os.path.basename(self.input_file_path))[0] + "_report.pdf")
             logo_path = os.path.join(self.root_dir, "media", "full_logo.png")
+            first_page_title = "דו״ח בתרגום לעברית עבור: "
 
             if not os.path.exists(logo_path):
                 raise FileNotFoundError(f"Logo file not found at {logo_path}")
 
-            generate_mbti_report(self.fixed_text_path, output_html, output_pdf, logo_path)
+            generate_mbti_report(self.fixed_text_path, output_html, output_pdf, logo_path, first_page_title)
 
             if not os.path.exists(output_pdf):
                 raise FileNotFoundError(f"Final PDF was not generated at {output_pdf}")
 
-            messagebox.showinfo("Success", f"PDF generated successfully!\nOutput PDF: {output_pdf}")
+            messagebox.showinfo("Success", f"MBTI report processed successfully!\nOutput PDF: {output_pdf}")
         except Exception as e:
-            messagebox.showerror("Error", f"An error occurred while generating the PDF: {str(e)}")
+            messagebox.showerror("Error", f"An error occurred during processing: {str(e)}")
+
+    def process_report_wrapper(self):
+        asyncio.run(self.process_report())
 
 
 if __name__ == "__main__":

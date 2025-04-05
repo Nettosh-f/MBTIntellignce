@@ -3,12 +3,7 @@ from .utils import get_all_info, extract_mbti_qualities_scores
 from .consts import MBTI_QUALITIES_HEBREW
 
 
-def format_mbti_string(mbti_page3):
-    formatted_items = []
-    for quality, score in mbti_page3.items():
-        hebrew_quality = MBTI_QUALITIES_HEBREW.get(quality, quality)  # Use English if Hebrew not found
-        formatted_items.append(f"{hebrew_quality}: {score}")
-    return " | ".join(formatted_items)
+
 
 
 def insert_fixed_text(input_file, output_file, page_line_text_map):
