@@ -1,0 +1,9 @@
+services:
+  api:
+    build:
+      context: ./backend/
+      dockerfile: ../dockers/Dockerfile.api
+    ports:
+      - 8080:8080
+    volumes:
+      - ./backend:/opt/MBTIIntelignce/backend:ro
