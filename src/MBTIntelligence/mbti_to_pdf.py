@@ -1,10 +1,12 @@
 import os
+import re
 import pathlib
 import webbrowser
 from weasyprint import HTML
+from datetime import datetime
 
 
-def generate_mbti_report(input_file, output_html, output_pdf, logo_path):
+def generate_mbti_report(input_file, output_html, output_pdf, logo_path, first_title):
     # File paths
     header_image_url = pathlib.Path(logo_path).absolute().as_uri()
 
@@ -19,7 +21,7 @@ def generate_mbti_report(input_file, output_html, output_pdf, logo_path):
     footer_static_text = '© 2025 המרכז הישראלי ל-MBTI. כל הזכויות שמורות.'
 
     # Build HTML
-    html_content = generate_html_content(header_image_url, pages, total_pages, footer_static_text)
+    html_content = generate_html_content(header_image_url, pages, total_pages, footer_static_text, first_title)
 
     # Save HTML
     with open(output_html, 'w', encoding='utf-8') as f:
@@ -35,7 +37,24 @@ def generate_mbti_report(input_file, output_html, output_pdf, logo_path):
     print("✅ MBTI report generated with page titles and numbers.")
 
 
-def generate_html_content(header_image_url, pages, total_pages, footer_static_text):
+def apply_formatting(text):
+    # Bold and underline formatting
+    text = re.sub(r'__\*\*(.*?)\*\*__', r'<b><u>\1</u></b>', text)
+
+    # Bold formatting
+    text = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', text)
+
+    # Underline formatting
+    text = re.sub(r'__(.*?)__', r'<u>\1</u>', text)
+
+    # Replace newlines with <br> tags
+    text = text.replace('\n', '<br>')
+
+    return text
+
+
+def generate_html_content(header_image_url, pages, total_pages, footer_static_text, first_page_title):
+    current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     html_head = f"""
     <!DOCTYPE html>
     <html lang="he" dir="rtl">
@@ -96,8 +115,17 @@ def generate_html_content(header_image_url, pages, total_pages, footer_static_te
                 margin-bottom: 50px;
                 color: #333;
                 text-decoration: underline;
-
+                padding-bottom: 10px;
             }}
+            .timestamp {{
+                font-size: 10px;
+                color: #999;
+            }}
+            .bold {{
+                font-weight: bold;
+            }}
+            .underline {{
+                text-decoration: underline;
         </style>
     </head>
     <body>
@@ -106,7 +134,8 @@ def generate_html_content(header_image_url, pages, total_pages, footer_static_te
     html_body = ""
     for index, page in enumerate(pages):
         page_number_text = f"עמוד {index + 1} מתוך {total_pages}"
-        page_html = page.replace('\n', '<br>')
+        page_content = re.sub(r'^\d+\s+---\s*', '', page).replace('\n', '<br>')
+        page_content = apply_formatting(page_content)
 
         if index == 0:
             html_body += f"""
@@ -115,10 +144,11 @@ def generate_html_content(header_image_url, pages, total_pages, footer_static_te
                 <footer>
                     <div>{page_number_text}</div>
                     <div>{footer_static_text}</div>
+                    <div class="timestamp"> created at: {current_time}</div>
                 </footer>
                 <main>
                     <div class="first-page-title">{first_page_title}</div>
-                    <p>{page_html}</p>
+                    <p>{page_content}</p>
                 </main>
             </div>
             """
@@ -129,10 +159,11 @@ def generate_html_content(header_image_url, pages, total_pages, footer_static_te
                 <footer>
                     <div>{page_number_text}</div>
                     <div>{footer_static_text}</div>
+                    <div class="timestamp"> created at: {current_time}</div>
                 </footer>
                 <main>
                     <div class="page-title">{page_number_text}</div>
-                    <p>{page_html}</p>
+                    <p>{page_content}</p>
                 </main>
             </div>
             """

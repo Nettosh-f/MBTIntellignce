@@ -6,10 +6,10 @@ import asyncio
 import shutil
 from .extract_text import process_pdf_file
 from .translation import translate_to_hebrew
-from .fixed_text import insert_fixed_text, format_mbti_string
+from .fixed_text import insert_fixed_text
 from .mbti_to_pdf import generate_mbti_report
-from .utils import get_all_info, extract_mbti_qualities_scores
-from .consts import fixed_text
+from .utils import get_all_info, extract_mbti_qualities_scores,format_mbti_string
+from .consts import fixed_text_data
 
 
 class MBTIProcessorGUI:
@@ -54,7 +54,7 @@ class MBTIProcessorGUI:
         try:
             # Step 1: Extract Text
             lines_to_remove_config = {
-                0: [0, 1, 2, 3, 4, 5, 6, 7],
+                0: [0, 1, 2, 3, 4, 5, 6, 7, 10, 11],
                 1: "ALL",  # Skip entire page
                 2: [0, 1, 2, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36,
                     37,
@@ -109,10 +109,16 @@ class MBTIProcessorGUI:
 
             # Step 3: Insert Fixed Text
             mbti_info = get_all_info(self.translated_text_path)
-            mbti_page3 = extract_mbti_qualities_scores(self.translated_text_path)
-            fixed_text_config = fixed_text(mbti_info, mbti_page3)
+            print(mbti_info)
+            mbti_qualities = extract_mbti_qualities_scores(self.translated_text_path)
+            print(mbti_qualities)
+            mbti_page3 = format_mbti_string(mbti_qualities)
+            print(mbti_page3)
+            fixed_text_config = fixed_text_data(mbti_info, mbti_page3)
+            print(fixed_text_config)
             output_filename = os.path.splitext(os.path.basename(self.input_file_path))[0] + "_fixed.txt"
             self.fixed_text_path = os.path.join(output_dir, output_filename)
+            print(f"Fixed text will be inserted into: {self.fixed_text_path}")
             insert_fixed_text(self.translated_text_path, self.fixed_text_path, fixed_text_config)
 
             # Step 4: Generate PDF

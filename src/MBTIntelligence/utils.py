@@ -51,26 +51,27 @@ def format_mbti_string(type_dict):
             formatted_items.append(f"{hebrew_quality}: {score}")
     return " | ".join(formatted_items)
 
-def replace_mbti_line(file_path: str, output_path: str):
-    with open(file_path, 'r', encoding='utf-8') as file:
-        content = file.readlines()
 
-    qualities_scores = extract_mbti_qualities_scores(file_path)
-    formatted_qualities = format_mbti_string(qualities_scores)
-
-    # Create a dynamic pattern based on non-zero qualities
-    non_zero_qualities = [MBTI_QUALITIES_HEBREW[q] for q, score in qualities_scores.items() if score != 0]
-    pattern = r'.*' + r'.*'.join(non_zero_qualities) + r'.*'
-
-    for i, line in enumerate(content):
-        if re.match(pattern, line, re.IGNORECASE):
-            content[i] = f"{formatted_qualities}\n"
-            break  # Assuming there's only one such line, we can break after replacing
-
-    with open(output_path, 'w', encoding='utf-8') as file:
-        file.writelines(content)
-
-    print(f"MBTI line replaced. Output saved to {output_path}")
+# def replace_mbti_line(file_path: str, output_path: str):
+#     with open(file_path, 'r', encoding='utf-8') as file:
+#         content = file.readlines()
+#
+#     qualities_scores = extract_mbti_qualities_scores(file_path)
+#     formatted_qualities = format_mbti_string(qualities_scores)
+#
+#     # Create a dynamic pattern based on non-zero qualities
+#     non_zero_qualities = [MBTI_QUALITIES_HEBREW[q] for q, score in qualities_scores.items() if score != 0]
+#     pattern = r'.*' + r'.*'.join(non_zero_qualities) + r'.*'
+#
+#     for i, line in enumerate(content):
+#         if re.match(pattern, line, re.IGNORECASE):
+#             content[i] = f"{formatted_qualities}\n"
+#             break  # Assuming there's only one such line, we can break after replacing
+#
+#     with open(output_path, 'w', encoding='utf-8') as file:
+#         file.writelines(content)
+#
+#     print(f"MBTI line replaced. Output saved to {output_path}")
 
 
 def extract_mbti_qualities_scores(file_path: str) -> Dict[str, int]:
