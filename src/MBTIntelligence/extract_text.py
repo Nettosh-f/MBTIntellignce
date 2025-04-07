@@ -48,25 +48,6 @@ def extract_text_from_pdf(pdf_path, lines_to_remove_by_page):
     return extracted_text
 
 
-def save_text_to_file(text, file_end, file_path):
-    """
-    Save extracted text to a text file.
-
-    Args:
-        text (str): Text to save
-        file_end (str): Suffix to add to the output filename
-        file_path (str): Path to the original PDF file
-    """
-    try:
-        filename = os.path.splitext(os.path.basename(file_path))[0] + file_end
-        output_path = os.path.join(r"F:\projects\MBTInteligence\output", filename)
-        with open(output_path, 'w', encoding='utf-8') as file:
-            file.write(text)
-        print(f"Text successfully saved to {output_path}")
-    except Exception as e:
-        print(f"Error saving text to file: {e}")
-
-
 def process_pdf_file(file_path: str, lines_to_remove_config: Dict[int, Union[str, List[int]]]) -> str:
     output_file_path = os.path.splitext(file_path)[0] + "-cleaned.txt"
 
