@@ -18,7 +18,7 @@ def generate_mbti_report(input_file, output_html, output_pdf, logo_path, first_t
     total_pages = len(pages)
 
     # Footer static text
-    footer_static_text = '© 2025 המרכז הישראלי ל-MBTI. כל הזכויות שמורות.'
+    footer_static_text = 'All rights reserved. TEMBTI-Intelligence©.'
 
     # Build HTML
     html_content = generate_html_content(header_image_url, pages, total_pages, footer_static_text, first_title)
@@ -64,6 +64,19 @@ def generate_html_content(header_image_url, pages, total_pages, footer_static_te
             @page {{
                 size: A4;
                 margin: 120px 60px 80px 60px;
+                @bottom-left {{
+                    content: counter(page);
+                    font-size: 18px;
+                    font-weight: bold;
+                }}
+                @bottom-right {{
+                    content: "{footer_static_text}";
+                    font-size: 12px;
+                }}
+            }}
+            @page :first {{
+                @bottom-left {{
+                content: none;}}
             }}
             body {{
                 font-family: 'Arial', sans-serif;
@@ -71,6 +84,7 @@ def generate_html_content(header_image_url, pages, total_pages, footer_static_te
                 font-size: 16px;
                 line-height: 1.8;
                 color: #000;
+                counter-reset: page 1;
             }}
             header {{
                 position: fixed;
@@ -82,29 +96,11 @@ def generate_html_content(header_image_url, pages, total_pages, footer_static_te
             header img {{
                 height: 70px;
             }}
-            footer {{
-                position: fixed;
-                bottom: -60px;
-                left: 0;
-                right: 0;
-                font-size: 12px;
-                color: gray;
-                display: flex;
-                justify-content: space-between;
-                padding: 0 30px;
-            }}
             .page {{
                 page-break-after: always;
             }}
             main {{
                 white-space: pre-wrap;
-            }}
-            .page-title {{
-                font-size: 20px;
-                font-weight: bold;
-                text-align: center;
-                margin-bottom: 30px;
-                color: #333;
             }}
             .first-page {{
                 text-align: center;
@@ -117,56 +113,40 @@ def generate_html_content(header_image_url, pages, total_pages, footer_static_te
                 text-decoration: underline;
                 padding-bottom: 10px;
             }}
-            .timestamp {{
-                font-size: 10px;
-                color: #999;
-            }}
-            .bold {{
-                font-weight: bold;
-            }}
-            .underline {{
-                text-decoration: underline;
         </style>
     </head>
     <body>
     """
 
     html_body = ""
+    page_count = 1
     for index, page in enumerate(pages):
-        page_number_text = f"עמוד {index + 1} מתוך {total_pages}"
         page_content = re.sub(r'^\d+\s+---\s*', '', page).replace('\n', '<br>')
         page_content = apply_formatting(page_content)
+        
+        # Skip empty pages
+        if not page_content.strip():
+            continue
 
         if index == 0:
             html_body += f"""
             <div class="page first-page">
                 <header><img src="{header_image_url}" alt="Header Image"></header>
-                <footer>
-                    <div>{page_number_text}</div>
-                    <div>{footer_static_text}</div>
-                    <div class="timestamp"> created at: {current_time}</div>
-                </footer>
                 <main>
-                    <div class="first-page-title">{first_page_title}</div>
-                    <p>{page_content}</p>
+                    <div class="first-page-title">{first_page_title}</div><p>{page_content}</p>
                 </main>
             </div>
             """
         else:
             html_body += f"""
-            <div class="page">
+            <div class="page page-{page_count}">
                 <header><img src="{header_image_url}" alt="Header Image"></header>
-                <footer>
-                    <div>{page_number_text}</div>
-                    <div>{footer_static_text}</div>
-                    <div class="timestamp"> created at: {current_time}</div>
-                </footer>
                 <main>
-                    <div class="page-title">{page_number_text}</div>
                     <p>{page_content}</p>
                 </main>
             </div>
             """
+        page_count += 1
 
     html_footer = "</body></html>"
 

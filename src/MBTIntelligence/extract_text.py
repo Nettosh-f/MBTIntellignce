@@ -36,7 +36,7 @@ def extract_text_from_pdf(pdf_path, lines_to_remove_by_page):
 
                 # Join the processed lines
                 processed_page_text = '\n'.join(lines)
-
+                print(f"Processed page number {page_num+1} {processed_page_text}:")
                 # Add page delimiter
                 extracted_text += f"\n--- Page {page_num + 1} ---\n\n"
                 extracted_text += processed_page_text + "\n"

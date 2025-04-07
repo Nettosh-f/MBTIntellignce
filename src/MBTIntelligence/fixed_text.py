@@ -44,11 +44,11 @@ def insert_fixed_text(input_file, output_file, page_line_text_map):
             if current_page in page_line_text_map and line_count_in_page in page_line_text_map[current_page]:
                 text_to_insert = page_line_text_map[current_page][line_count_in_page]
                 if isinstance(text_to_insert, str) and "DELETE" in text_to_insert:
-                    print(f"Deleted line at Page {current_page}, Line {line_count_in_page}: {line.strip()[:30]}...")
+                    # print(f"Deleted line at Page {current_page}, Line {line_count_in_page}: {line.strip()[:30]}...")
                     continue
                 else:
                     result_lines.append(text_to_insert + '\n')
-                    print(f"Inserted text at Page {current_page}, Line {line_count_in_page}: {text_to_insert[:30]}...")
+                    # print(f"Inserted text at Page {current_page}, Line {line_count_in_page}: {text_to_insert[:30]}...")
 
             # Add the original line
             result_lines.append(line)

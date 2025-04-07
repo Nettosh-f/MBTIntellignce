@@ -57,21 +57,16 @@ class MBTIProcessorGUI:
                 0: [0, 1, 2, 3, 4, 5, 6, 7, 10, 11],
                 1: "ALL",  # Skip entire page
                 2: [0, 1, 2, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36,
-                    37,
-                    38, 39, 40],
+                    37, 38, 39, 40, 41, 42],
                 3: "ALL",
                 4: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
-                    27,
-                    28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39],
+                    27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39],
                 5: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
-                    27,
-                    28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39],
+                    27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39],
                 6: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
-                    27,
-                    28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40],
+                    27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40],
                 7: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
-                    27,
-                    28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38],
+                    27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38],
                 8: [0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11],
                 9: [0, 1, 2, 3, 4, 5, 6, 7, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49],
                 10: [0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12],
@@ -80,12 +75,10 @@ class MBTIProcessorGUI:
                 13: [0, 1, 2, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29],
                 14: "ALL",
                 15: [0, 1, 2, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
-                     31,
-                     32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43],
+                     31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43],
                 16: [0, 1, 2, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-                     29,
-                     30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60,
-                     61, 62, 63, 64, 65, 66]
+                     29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
+                     60, 61, 62, 63, 64, 65, 66]
             }
             self.cleaned_text_path = process_pdf_file(self.file_path, lines_to_remove_config)
             cleaned_text_path_str = str(self.cleaned_text_path)
@@ -97,7 +90,6 @@ class MBTIProcessorGUI:
                 text = f.read()
 
             translated_text = await translate_to_hebrew(text)
-
             if translated_text is None:
                 raise ValueError("Translation failed. No Hebrew text was generated.")
             output_dir = os.path.join(self.root_dir, "output")
@@ -109,16 +101,11 @@ class MBTIProcessorGUI:
 
             # Step 3: Insert Fixed Text
             mbti_info = get_all_info(self.translated_text_path)
-            print(mbti_info)
             mbti_qualities = extract_mbti_qualities_scores(self.translated_text_path)
-            print(mbti_qualities)
             mbti_page3 = format_mbti_string(mbti_qualities)
-            print(mbti_page3)
             fixed_text_config = fixed_text_data(mbti_info, mbti_page3)
-            print(fixed_text_config)
             output_filename = os.path.splitext(os.path.basename(self.input_file_path))[0] + "_fixed.txt"
             self.fixed_text_path = os.path.join(output_dir, output_filename)
-            print(f"Fixed text will be inserted into: {self.fixed_text_path}")
             insert_fixed_text(self.translated_text_path, self.fixed_text_path, fixed_text_config)
 
             # Step 4: Generate PDF

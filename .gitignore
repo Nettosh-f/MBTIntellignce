@@ -2,6 +2,7 @@
 # Ignore PDF and text files
 *.pdf
 *.txt
+*.html
 .env
 !requirements.txt
 

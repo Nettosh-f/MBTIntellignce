@@ -1,17 +1,38 @@
 SYSTEM_PROMPT = """You are a professional translator. Translate the following English text into formal, professional 
 Hebrew suitable for inclusion in a psychological assessment report, maintaining the original meaning and tone. Ensure 
-that the Hebrew text uses formal language and preserves the original structure and intent. Preserve the page count by 
-using the following format: --- page # ---, where # is the page number. in pages 5-10, the page structure should be 
-as if the text was extracted from a table, for example : \"Ways to connect with others \nINITIATING–RECEIVING  
-\nmidzoneWill initiate conversations in social situations \nwith people you already know or if your role \ncalls for 
-this.\nAppear at ease socially in familiar situations, \nless at ease in large social gatherings.Are willing to 
-introduce people to each other \nif no one else does so and introductions are \nnecessary.\"\nwould be: \"\n__**Ways to 
-connect with others**__ \n**INITIATING–RECEIVING** (midzone)\n• Will initiate conversations in social situations with people 
-you already know or if your role calls for this.\n• Appear at ease socially in familiar situations, less at ease in 
-large social gatherings.\n• Are willing to introduce people to each other if no one else does so and introductions are 
-necessary.\"\n remove all empty rows, keep the separation to pages as '--- page {number} ---' make sure to translate
-extroversion and introversion into 'מוחצנות' and 'מופנמות' respectively.
- """
+that the Hebrew text uses formal language and preserves the original structure and intent. Follow these strict guidelines:
+
+1. Preserve the page count and structure exactly as in the original text.
+2. Use the following format to clearly separate pages: --- page # ---, where # is the page number.
+3. Ensure that all content from a specific page in the original text remains on the same page in the translation.
+4. Do not allow any content to spill over to the next page.
+5. For pages 5-10, structure the content as if extracted from a table. For example:
+
+Original:
+"Ways to connect with others
+INITIATING–RECEIVING
+midzoneWill initiate conversations in social situations
+with people you already know or if your role
+calls for this.
+Appear at ease socially in familiar situations,
+less at ease in large social gatherings.Are willing to
+introduce people to each other
+if no one else does so and introductions are
+necessary."
+
+Should be translated and formatted as:
+
+"__**דרכים להתחבר עם אחרים**__
+**יוזמה–קבלה** (אזור ביניים)
+• יוזם שיחות במצבים חברתיים עם אנשים שאתה כבר מכיר או אם תפקידך דורש זאת.
+• נראה בנוח חברתית במצבים מוכרים, פחות בנוח באירועים חברתיים גדולים.
+• מוכן להציג אנשים זה לזה אם אף אחד אחר לא עושה זאת והצגות נחוצות."
+
+6. Remove all empty rows.
+7. Translate "Extraversion" as "מוחצנות" and "Introversion" as "מופנמות".
+8. Use bullet points (•) for lists within the table-like structures on pages 5-10.
+
+Your primary goal is to produce a well-structured, accurately translated document that strictly adheres to the original page layout and content separation."""
 MBTI_TYPES = [
     "ISTJ", "ISFJ", "INFJ", "INTJ",
     "ISTP", "ISFP", "INFP", "INTP",
@@ -60,24 +81,21 @@ def fixed_text_data(mbti_info, format_mbti_string):
     fixed_text_const = {
         2: {1: """דוח הפרשנות שלך הוא תיאור מעמיק ומותאם אישית של העדפות האישיות שלך, הנגזרות מתשובותיך בשאלון שמילאת.
 הוא כולל את תוצאות שלב 1 שלך ואת הטיפוס שלך בארבע אותיות, יחד עם תוצאות שלב 2 שלך,המראות כמה מהדרכים הייחודיות שבהן אתה מבטא את הטיפוס שלך בשלב 1.\n
-הערכת כלי ה-MBTI פותחה על ידי איזבל מאיירס וקתרין בריגס
-כיישום של תיאוריית טיפוסי האישיות של קרל יונג. תיאוריה זו מדברת על כך שיש לנו דרכים מנוגדות לכוון ולקבל
-אנרגיה  (מוחצנות או מופנמות), לקלוט מידע (חושים או אינטואיציה), להחליט או להגיע למסקנות לגבי מידע זה
-(לוגיקה או הסכמה), ולגשת לעולם החיצון (מנוהל או מתנהל)."""},
+הערכת כלי ה-MBTI פותחה על ידי איזבל מאיירס וקתרין בריגס כיישום של תיאוריית טיפוסי האישיות של קרל יונג. תיאוריה זו מדברת על כך שיש לנו דרכים מנוגדות לכוון ולקבל אנרגיה (מוחצנות או מופנמות), לקלוט מידע (חושים או אינטואיציה), להחליט או להגיע למסקנות לגבי מידע זה (לוגיקה או הסכמה), ולגשת לעולם החיצון (מנוהל או מתנהל)."""},
         3: {
-            1: f"טיפוס האישיות שלך כפי שדווח: {mbti_info['type']}",
-            2: f"ההעדפות שלך הן\n{format_mbti_string}",
+            1: f"**טיפוס האישיות שלך כפי שדווח: {mbti_info['type']}**",
+            2: f"**__ההעדפות שלך הן__\n{format_mbti_string}**",
             6: "DELETE",
             5: "DELETE"
         },
-        4: {1: """תוצאות שלב 2 שלך
+        4: {1: """__**תוצאות שלב 2 שלך**__
 הערכת MBTI Step II מסבירה חלק מהמורכבות של האישיות שלך על ידי הצגת התוצאות שלך בחמישה חלקים שונים, או ׳פנים׳, עבור כל אחד מזוגות ההעדפות של שלב 1.
 התעמקות בתוצאות שלך ב-20 הפנים הללו יכולה לעזור לך להבין טוב יותר את הדרך הייחודית שלך לחוות ולבטא את הטיפוס שלך.
 __**עובדות על 20 הפנים**__
-חמשת הפנים בתוך העדפה אינן מכסות או מסבירות את המשמעות המלאה של ההעדפה.
-לכל פן יש נושא, כגון "דרכים להתחבר עם אחרים".
-לכל פן יש שני קטבים מנוגדים (למשל, יוזם ומקבל).
-הפנים מקבלות ניקוד שונה מההעדפות, ולכן חמשת ציוני הפנים שלך אינם מסתכמים לציון ההעדפה של שלב 1 שלך.
+• חמשת הפנים בתוך העדפה אינן מכסות או מסבירות את המשמעות המלאה של ההעדפה. 
+• לכל פן יש נושא, כגון "דרכים להתחבר עם אחרים". 
+• לכל פן יש שני קטבים מנוגדים (למשל, יוזם ומקבל). 
+• הפנים מקבלות ניקוד שונה מההעדפות, ולכן חמשת ציוני הפנים שלך אינם מסתכמים לציון ההעדפה של שלב 1 שלך. 
 כל פן יכול להופיע ב-3 אופנים:
 o	**״בתוך ההעדפה״** – כלומר שייך להעדפה של שלב 1
 o	**״אזור ביניים״** – כלומר בין שני הקטבים של שלב 1
@@ -95,16 +113,14 @@ THINKING (חשיבה) / FEELING (הסכמה/רגש)"""
         8: {1: """**4. איך את.ה מתנהל.ת בעולם**
 JUDJING (מתוכנן) / PERCEIVING (מתנהל)"""
             },
-        9: {1: """**החלת תוצאות שלב ™II על תקשורת**""",
-            2: "DELETE",
-            3: """כל ההיבטים של הטיפוס שלך משפיעים על האופן שבו אתה מתקשר, במיוחד כחלק מצוות. תשעה מה׳פנים׳ רלוונטיים במיוחד לתקשורת. ההעדפות שלך לתשעת הפנים הללו יחד עם טיפים לתקשורת טובה יותר מופיעים להלן.
+        9: {3: """כל ההיבטים של הטיפוס שלך משפיעים על האופן שבו אתה מתקשר, במיוחד כחלק מצוות. תשעה מה׳פנים׳ רלוונטיים במיוחד לתקשורת. ההעדפות שלך לתשעת הפנים הללו יחד עם טיפים לתקשורת טובה יותר מופיעים להלן.
 בנוסף לטיפים שלהלן, זכור שתקשורת עבור כל טיפוס כוללת:
 1.	לספר לאחרים איזה סוג מידע אתה צריך.
 2.	לשאול אחרים מה הם צריכים.
 3.	לפקח על חוסר הסבלנות שלך כאשר סגנונות אחרים שולטים.
 4.	להבין שאחרים כנראה לא מנסים להרגיז אותך כשהם משתמשים בסגנונות התקשורת שלהם."""
             },
-        10: {1: """יישום תוצאות שלב 2 לקבלת החלטות
+        10: {1: """__**יישום תוצאות שלב II™ לקבלת החלטות**__
 קבלת החלטות יעילה דורשת איסוף מידע ממגוון נקודות מבט ויישום שיטות שונות להערכת מידע זה. ידע על פני שלב 2 נותן לנו דרכים ספציפיות לשפר את קבלת ההחלטות שלנו, במיוחד את ה׳פנים׳ הקשורות לחושים, אינטואיציה, חשיבה ורגש. להלן שאלות כלליות הקשורות לפנים אלה. קטבי הפנים שאתה מעדיף נמצאים בכתב נטוי כחול. אם אתה באזור הביניים, אף קוטב לא מודגש.""",
              28: """ טיפים:
 בפתרון בעיות אישיות, התחל בשאילת כל השאלות מלמעלה.
