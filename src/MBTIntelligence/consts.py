@@ -1,12 +1,30 @@
 SYSTEM_PROMPT = """You are a professional translator. Translate the following English text into formal, professional 
 Hebrew suitable for inclusion in a psychological assessment report, maintaining the original meaning and tone. Ensure 
-that the Hebrew text uses formal language and preserves the original structure and intent. Follow these strict guidelines:
+that the Hebrew text uses formal language and preserves the original structure and intent.
 
+General Guidelines:
 1. Preserve the page count and structure exactly as in the original text.
 2. Use the following format to clearly separate pages: --- page # ---, where # is the page number.
 3. Ensure that all content from a specific page in the original text remains on the same page in the translation.
 4. Do not allow any content to spill over to the next page.
-5. For pages 5-10, structure the content as if extracted from a table. For example:
+5. Remove all empty rows.
+6. Translate "Extraversion" as "מוחצנות (Extraversion)" and "Introversion" as "מופנמות (Introversion)".
+7. Use bullet points (•) for lists within the table-like structures on pages 5-10.
+8. Do not translate MBTI type codes (e.g., ISTJ, ENFP). Keep these in their original English format.
+9. translate "in preference" to "בהעדפה".
+Specific Page Instructions:
+
+for page 3:
+1. for the specific section, make sure to structure the line like this example:
+"PCI RESULTS:
+EXTRAVERSION | 11 INTUITION | 9 THINKING | 4 PERCEIVING | 11"
+to:
+ההעדפות שלך הן:
+מוחצנות: 11 | אינטואיטיביות: 9 | חשיבתיות: 4 | גמישות: 11
+make sure to enter the currect values and qualities from the original text.
+make sure to translate the rest of the page as well.
+
+For pages 5-9, structure the content as if extracted from a table. For example:
 
 Original:
 "Ways to connect with others
@@ -28,11 +46,23 @@ Should be translated and formatted as:
 • נראה בנוח חברתית במצבים מוכרים, פחות בנוח באירועים חברתיים גדולים.
 • מוכן להציג אנשים זה לזה אם אף אחד אחר לא עושה זאת והצגות נחוצות."
 
-6. Remove all empty rows.
-7. Translate "Extraversion" as "מוחצנות" and "Introversion" as "מופנמות".
-8. Use bullet points (•) for lists within the table-like structures on pages 5-10.
+for pages 9,11,12 format each quality to be like this:
+"**quality** (preference, if applicable):
+• {table 2nd title} style: {line content}
+" enhancing your style: {line content}"
 
-Your primary goal is to produce a well-structured, accurately translated document that strictly adheres to the original page layout and content separation."""
+for page 10: 
+1.seperate each quality with a new line, like this:
+"Concrete:What do we know? How do we know it? 
+Abstract: What else could this mean?
+Realistic: What are the real costs? 
+Imaginative: What else can we come up with?
+etc..."
+2. for each in-preferce quality in page 9,11,12; add **{line}** for the quality.
+
+Your primary goal is to produce a well-structured, accurately translated document that strictly adheres to the original
+page layout and content separation, while ensuring that MBTI-related terms are translated with their English equivalents in parentheses."""
+
 MBTI_TYPES = [
     "ISTJ", "ISFJ", "INFJ", "INTJ",
     "ISTP", "ISFP", "INFP", "INTP",
@@ -49,14 +79,25 @@ MBTI_QUALITIES = [
 MBTI_QUALITIES_HEBREW = {
     "Extraversion": "מוחצנות",
     "Introversion": "מופנמות",
-    "Sensing": "חישה",
-    "Intuition": "אינטואיציה",
-    "Thinking": "חשיבה",
-    "Feeling": "רגש",
-    "Judging": "שיפוטיות",
-    "Perceiving": "הסתגלות"
+    "Sensing": "חושיות",
+    "Intuition": "אינטואיטיביות",
+    "Thinking": "חשיבתיות",
+    "Feeling": "רגשיות",
+    "Judging": "מתוכנן.ת",
+    "Perceiving": "גמישות"
 }
-# Mapping of MBTI types to their qualities
+
+MBTI_QUALITIES_FORMATTED = {
+    "Extraversion": "Extraversion (מוחצנות)",
+    "Introversion": "Introversion (מופנמות)",
+    "Sensing": "Sensing (חושיות)",
+    "Intuition": "Intuition (אינטואיטיביות)",
+    "Thinking": "Thinking (חשיבתיות)",
+    "Feeling": "Feeling (רגשיות)",
+    "Judging": "Judging (מתוכנן.ת)",
+    "Perceiving": "Perceiving (גמישות)"
+}
+
 MBTI_TYPE_QUALITIES = {
     "ISTJ": ["Introversion", "Sensing", "Thinking", "Judging"],
     "ISFJ": ["Introversion", "Sensing", "Feeling", "Judging"],
@@ -77,17 +118,19 @@ MBTI_TYPE_QUALITIES = {
 }
 
 
-def fixed_text_data(mbti_info, format_mbti_string):
+def fixed_text_data(mbti_info, mbti_type_qualities):
     fixed_text_const = {
+        1: {5: """תרגום החוברת מבוצע בין השאר (אך לא רק) על ידי מערכות בינה מלאכותית (AI), ולכן התרגום עלול להיות לא מדויק.\n 
+באחריות המשתמש להשתמש בו בצמוד לחוברת הפרשנות המקורית והרשמית (MYER-BRIGGS TYPE INDICATOR™).\n
+השימוש בתרגום לצרכים אישיים בלבד ועל אחריות הקורא.
+        """},
         2: {1: """דוח הפרשנות שלך הוא תיאור מעמיק ומותאם אישית של העדפות האישיות שלך, הנגזרות מתשובותיך בשאלון שמילאת.
 הוא כולל את תוצאות שלב 1 שלך ואת הטיפוס שלך בארבע אותיות, יחד עם תוצאות שלב 2 שלך,המראות כמה מהדרכים הייחודיות שבהן אתה מבטא את הטיפוס שלך בשלב 1.\n
 הערכת כלי ה-MBTI פותחה על ידי איזבל מאיירס וקתרין בריגס כיישום של תיאוריית טיפוסי האישיות של קרל יונג. תיאוריה זו מדברת על כך שיש לנו דרכים מנוגדות לכוון ולקבל אנרגיה (מוחצנות או מופנמות), לקלוט מידע (חושים או אינטואיציה), להחליט או להגיע למסקנות לגבי מידע זה (לוגיקה או הסכמה), ולגשת לעולם החיצון (מנוהל או מתנהל)."""},
-        3: {
-            1: f"**טיפוס האישיות שלך כפי שדווח: {mbti_info['type']}**",
-            2: f"**__ההעדפות שלך הן__\n{format_mbti_string}**",
+        3: {1: f"טיפוס האישיות שלך כפי שדווח: {mbti_info['type']}",
+            # 2: f"**__ההעדפות שלך הן__\n{format_mbti_string}**",
             6: "DELETE",
-            5: "DELETE"
-        },
+            5: "DELETE"},
         4: {1: """__**תוצאות שלב 2 שלך**__
 הערכת MBTI Step II מסבירה חלק מהמורכבות של האישיות שלך על ידי הצגת התוצאות שלך בחמישה חלקים שונים, או ׳פנים׳, עבור כל אחד מזוגות ההעדפות של שלב 1.
 התעמקות בתוצאות שלך ב-20 הפנים הללו יכולה לעזור לך להבין טוב יותר את הדרך הייחודית שלך לחוות ולבטא את הטיפוס שלך.
@@ -101,18 +144,10 @@ o	**״בתוך ההעדפה״** – כלומר שייך להעדפה של שלב
 o	**״אזור ביניים״** – כלומר בין שני הקטבים של שלב 1
 o	**״מחוץ להעדפה״** – כלומר שייך לקוטב ההפוך מהתוצאה של שלב 1"""
             },
-        5: {1: """**1. ממה אתה מקבל אנרגיה?**
-EXTROVERSION (מוחצנות) / INTROVERSION (מופנמות)"""
-            },
-        6: {1: """**2. כיצד את.ה קולט.ת מידע?**
-SENSOR(חושים) / INTUITION (אינטואיציה)"""
-            },
-        7: {1: """**3. באיזה אופן את.ה מקבל.ת החלטות**
-THINKING (חשיבה) / FEELING (הסכמה/רגש)"""
-            },
-        8: {1: """**4. איך את.ה מתנהל.ת בעולם**
-JUDJING (מתוכנן) / PERCEIVING (מתנהל)"""
-            },
+        5: {1: f"""**1. ממה אתה מקבל אנרגיה?**\n{mbti_type_qualities[0]}"""},
+        6: {1: f"""**2. כיצד את.ה קולט.ת מידע?**\n{mbti_type_qualities[1]}"""},
+        7: {1: f"""**3. באיזה אופן את.ה מקבל.ת החלטות**\n{mbti_type_qualities[2]}"""},
+        8: {1: f"""**4. איך את.ה מתנהל.ת בעולם**\n{mbti_type_qualities[3]}"""},
         9: {3: """כל ההיבטים של הטיפוס שלך משפיעים על האופן שבו אתה מתקשר, במיוחד כחלק מצוות. תשעה מה׳פנים׳ רלוונטיים במיוחד לתקשורת. ההעדפות שלך לתשעת הפנים הללו יחד עם טיפים לתקשורת טובה יותר מופיעים להלן.
 בנוסף לטיפים שלהלן, זכור שתקשורת עבור כל טיפוס כוללת:
 1.	לספר לאחרים איזה סוג מידע אתה צריך.
@@ -147,3 +182,32 @@ JUDJING (מתוכנן) / PERCEIVING (מתנהל)"""
 אנשים שמעדיפים מוחצנות אוהבים להשתמש בתהליך המועדף עליהם בעיקר בעולם החיצון של אנשים ודברים. לאיזון, הם משתמשים בתהליך השני שלהם בעולם הפנימי שלהם של רעיונות ורשמים. אנשים שמעדיפים מופנמות נוטים להשתמש בתהליך המועדף עליהם בעיקר בעולם הפנימי שלהם ולאזן זאת עם השימוש בתהליך השני שלהם בעולם החיצון."""}
     }
     return fixed_text_const
+
+
+lines_to_remove = {
+    0: [0, 1, 2, 3, 4, 5, 6, 7, 10, 11],
+    1: "ALL",  # Skip entire page
+    2: [0, 1, 2, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36,
+        37, 38, 39, 40, 41],
+    3: "ALL",
+    4: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
+        27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39],
+    5: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
+        27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39],
+    6: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
+        27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40],
+    7: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
+        27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38],
+    8: [0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11],
+    9: [0, 1, 2, 3, 4, 5, 6, 7, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49],
+    10: [0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+    11: [0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+    12: [0, 1, 2, 4, 5, 6, 7, 8, 27, 28, 29, 30, 31],
+    13: [0, 1, 2, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29],
+    14: "ALL",
+    15: [0, 1, 2, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
+         31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43],
+    16: [0, 1, 2, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
+         29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
+         60, 61, 62, 63, 64, 65, 66]
+}
