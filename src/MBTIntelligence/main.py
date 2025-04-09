@@ -7,6 +7,8 @@ import asyncio
 import shutil
 import threading
 import sys
+import logging
+from datetime import datetime
 from .extract_text import process_pdf_file
 from .translation import translate_to_hebrew
 from .fixed_text import insert_fixed_text
@@ -24,6 +26,7 @@ class ConsoleRedirect:
         self.text_widget.insert(tk.END, message)
         self.text_widget.see(tk.END)
         self.text_widget.configure(state='disabled')
+        logging.info(message.strip())
 
     def flush(self):
         pass
@@ -50,9 +53,11 @@ class MBTIProcessorGUI:
 
         self.create_widgets()
 
-        # Redirect stdout to GUI console
+        # Redirect stdout and stderr to GUI console
         self.original_stdout = sys.stdout
+        self.original_stderr = sys.stderr
         sys.stdout = ConsoleRedirect(self.console_text)
+        sys.stderr = ConsoleRedirect(self.console_text)
 
     def create_widgets(self):
         # Logo
@@ -64,7 +69,7 @@ class MBTIProcessorGUI:
             logo_label = tk.Label(self.master, image=self.logo, bg="#f7f7f7")
             logo_label.pack(pady=10)
         except Exception as e:
-            print(f"[WARNING] Could not load logo: {str(e)}")
+            logging.warning(f"Could not load logo: {str(e)}")
             # Create a placeholder label if logo can't be loaded
             logo_label = tk.Label(self.master, text="MBTI Intelligence", font=("Helvetica", 18, "bold"), bg="#f7f7f7")
             logo_label.pack(pady=10)
@@ -113,6 +118,33 @@ class MBTIProcessorGUI:
                           font=("Helvetica", 8), bg="#f7f7f7", anchor="w", justify="left")
         footer.place(relx=0.01, rely=0.98, anchor="sw")
 
+    def setup_logging(self, filename):
+        log_dir = os.path.join(self.root_dir, "logs")
+        os.makedirs(log_dir, exist_ok=True)
+        
+        timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+        log_filename = f"{filename}-{timestamp}-log.txt"
+        log_path = os.path.join(log_dir, log_filename)
+        
+        logging.basicConfig(
+            filename=log_path,
+            level=logging.INFO,
+            format='%(asctime)s - %(levelname)s - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
+        
+        # Also log to console
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.INFO)
+        logging.getLogger().addHandler(console_handler)
+        
+        return log_path
+
+    def update_log_filename(self, log_path, status):
+        new_log_path = log_path.replace("-log.txt", f"-{status}-log.txt")
+        os.rename(log_path, new_log_path)
+        logging.info(f"Log file renamed to: {new_log_path}")
+
     def select_file(self):
         self.file_path = filedialog.askopenfilename(filetypes=[("PDF files", "*.pdf")])
         if self.file_path:
@@ -123,11 +155,11 @@ class MBTIProcessorGUI:
 
             self.generate_btn['state'] = tk.NORMAL
             self.status_label.config(text=f"Selected file: {input_filename}")
-            print(f"[INFO] File uploaded: {self.file_path}")
-            print(f"[INFO] File copied to: {self.input_file_path}")
+            logging.info(f"File uploaded: {self.file_path}")
+            logging.info(f"File copied to: {self.input_file_path}")
         else:
             self.status_label.config(text="Upload canceled")
-            print("[INFO] File upload canceled.")
+            logging.info("File upload canceled.")
 
     def start_processing(self):
         self.generate_btn['state'] = tk.DISABLED
@@ -139,11 +171,17 @@ class MBTIProcessorGUI:
         threading.Thread(target=self.process_report_thread).start()
 
     def process_report_thread(self):
+        filename = os.path.splitext(os.path.basename(self.input_file_path))[0]
+        log_path = self.setup_logging(filename)
+        
         try:
             asyncio.run(self.process_report())
+            logging.info("Processing completed successfully")
+            self.update_log_filename(log_path, "success")
         except Exception as e:
-            self.master.after(0,
-                              lambda: messagebox.showerror("Error", f"An error occurred during processing: {str(e)}"))
+            logging.error(f"An error occurred during processing: {str(e)}", exc_info=True)
+            self.update_log_filename(log_path, "crash")
+            self.master.after(0, lambda: messagebox.showerror("Error", f"An error occurred during processing: {str(e)}"))
         finally:
             self.master.after(0, self.processing_complete)
 
@@ -155,23 +193,26 @@ class MBTIProcessorGUI:
 
     async def process_report(self):
         try:
-            print("[PROCESS] Starting MBTI report processing...")
+            logging.info("[PROCESS] Starting MBTI report processing...")
 
             # Step 1: Extract Text
-            print("[PROCESS] Step 1: Extracting text from PDF...")
-            lines_to_remove_config = lines_to_remove
-            self.cleaned_text_path = process_pdf_file(self.file_path, lines_to_remove_config)
+            logging.info("[PROCESS] Step 1: Extracting text from PDF...")
+            self.cleaned_text_path = process_pdf_file(self.file_path, lines_to_remove)
+            logging.info(self.cleaned_text_path)
             cleaned_text_path_str = str(self.cleaned_text_path)
+            logging.info(cleaned_text_path_str)
             if cleaned_text_path_str == "None" or not os.path.exists(cleaned_text_path_str):
                 raise ValueError(
                     f"PDF processing failed. No output file was generated at expected path: {cleaned_text_path_str}")
-            print(f"[INFO] Text extracted successfully: {self.cleaned_text_path}")
+            logging.info(f"[INFO] Text extracted successfully: {self.cleaned_text_path}")
 
             # Step 2: Translate to Hebrew
-            print("[PROCESS] Step 2: Translating text to Hebrew...")
+            logging.info("[PROCESS] Step 2: Translating text to Hebrew...")
             with open(self.cleaned_text_path, 'r', encoding='utf-8') as f:
                 text = f.read()
+                logging.info(text)
             translated_text = await translate_to_hebrew(text)
+            logging.info("translated text:\n" + translated_text)
             if translated_text is None:
                 raise ValueError("Translation failed. No Hebrew text was generated.")
 
@@ -181,27 +222,30 @@ class MBTIProcessorGUI:
             self.translated_text_path = os.path.join(output_dir, output_filename)
             with open(self.translated_text_path, 'w', encoding='utf-8') as f:
                 f.write(translated_text)
-            print(f"[INFO] Translation completed: {self.translated_text_path}")
+            logging.info(f"[INFO] Translation completed: {self.translated_text_path}")
 
             # Step 3: Insert Fixed Text
-            print("[PROCESS] Step 3: Inserting fixed text...")
+            logging.info("[PROCESS] Step 3: Inserting fixed text...")
             mbti_info = get_all_info(self.translated_text_path)
+            logging.info(str(mbti_info))  # Log the info dictionary
             mbti_type = mbti_info['type']  # Get the MBTI type from the info dictionary
+            logging.info(mbti_type)
             mbti_type_qualities = get_formatted_type_qualities(mbti_type)  # Pass the type, not the file path
-            print(mbti_type_qualities)
+            logging.info(mbti_type_qualities)
+            # mbti_string = format_mbti_string(mbti_qualities)
             fixed_text_config = fixed_text_data(mbti_info, mbti_type_qualities)
             output_filename = os.path.splitext(os.path.basename(self.input_file_path))[0] + "_fixed.txt"
             self.fixed_text_path = os.path.join(output_dir, output_filename)
             insert_fixed_text(self.translated_text_path, self.fixed_text_path, fixed_text_config)
-            print(f"[INFO] Fixed text inserted: {self.fixed_text_path}")
+            logging.info(f"[INFO] Fixed text inserted: {self.fixed_text_path}")
 
             # Step 4: Generate PDF
-            print("[PROCESS] Step 4: Generating final PDF report...")
+            logging.info("[PROCESS] Step 4: Generating final PDF report...")
             output_html = os.path.join(output_dir,os.path.splitext(os.path.basename(self.input_file_path))[0] + "_report.html")
             output_pdf = os.path.join(output_dir,
                                       os.path.splitext(os.path.basename(self.input_file_path))[0] + "_report.pdf")
             logo_path = os.path.join(self.root_dir, "media", "full_logo.png")
-            first_page_title = "דו״ח בתרגום לעברית עבור: "
+            first_page_title = "דו&quot;ח בתרגום לעברית עבור: "
             if not os.path.exists(logo_path):
                 raise FileNotFoundError(f"Logo file not found at {logo_path}")
             generate_mbti_report(self.fixed_text_path, output_html, output_pdf, logo_path, first_page_title)
@@ -210,15 +254,23 @@ class MBTIProcessorGUI:
 
             # Store the output PDF path for later use
             self.output_pdf_path = output_pdf
-            print(f"[SUCCESS] PDF report generated successfully: {output_pdf}")
+            logging.info(f"[SUCCESS] PDF report generated successfully: {output_pdf}")
             self.status_label.config(text="Report generated successfully!")
             self.master.after(0, lambda: messagebox.showinfo("Success",
                                                              f"MBTI report processed successfully!\nOutput PDF: {output_pdf}"))
         except Exception as e:
-            print(f"[ERROR] {str(e)}")
+            logging.error(f"[ERROR] {str(e)}")
             self.master.after(0,
                               lambda: messagebox.showerror("Error", f"An error occurred during processing: {str(e)}"))
 
+    י:
+    מה
+    אנחנו
+    יודעים? איך
+    אנחנו
+    יודעים
+    את
+    זה?
     def open_output_folder(self):
         """Open the output folder in file explorer"""
         output_dir = os.path.join(self.root_dir, "output")
@@ -231,16 +283,16 @@ class MBTIProcessorGUI:
             else:  # Linux
                 import subprocess
                 subprocess.Popen(['xdg-open', output_dir])
-            print(f"[INFO] Opened output folder: {output_dir}")
+            logging.info(f"[INFO] Opened output folder: {output_dir}")
         else:
             messagebox.showerror("Error", f"Output directory does not exist: {output_dir}")
-            print(f"[ERROR] Output directory does not exist: {output_dir}")
+            logging.error(f"[ERROR] Output directory does not exist: {output_dir}")
 
-        def process_report_wrapper(self):
-            """Legacy method for backward compatibility"""
-            asyncio.run(self.process_report())
+    def process_report_wrapper(self):
+        """Legacy method for backward compatibility"""
+        asyncio.run(self.process_report())
 
-        if __name__ == "__main__":
-            root = tk.Tk()
-            gui = MBTIProcessorGUI(root)
-            root.mainloop()
+    if __name__ == "__main__":
+        root = tk.Tk()
+        gui = MBTIProcessorGUI(root)
+        root.mainloop()

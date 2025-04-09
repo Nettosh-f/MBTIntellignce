@@ -15,13 +15,14 @@ General Guidelines:
 Specific Page Instructions:
 
 for page 3:
-1. for the specific section, make sure to structure the line like this:
+1. for the specific section, make sure to structure the line like this example:
 "PCI RESULTS:
 EXTRAVERSION | 11 INTUITION | 9 THINKING | 4 PERCEIVING | 11"
 to:
 ההעדפות שלך הן:
 מוחצנות: 11 | אינטואיטיביות: 9 | חשיבתיות: 4 | גמישות: 11
-make sure to enter a different gender-neutral translation for different qualities.
+make sure to enter the currect values and qualities from the original text.
+make sure to translate the rest of the page as well.
 
 For pages 5-9, structure the content as if extracted from a table. For example:
 
@@ -126,7 +127,8 @@ def fixed_text_data(mbti_info, mbti_type_qualities):
         2: {1: """דוח הפרשנות שלך הוא תיאור מעמיק ומותאם אישית של העדפות האישיות שלך, הנגזרות מתשובותיך בשאלון שמילאת.
 הוא כולל את תוצאות שלב 1 שלך ואת הטיפוס שלך בארבע אותיות, יחד עם תוצאות שלב 2 שלך,המראות כמה מהדרכים הייחודיות שבהן אתה מבטא את הטיפוס שלך בשלב 1.\n
 הערכת כלי ה-MBTI פותחה על ידי איזבל מאיירס וקתרין בריגס כיישום של תיאוריית טיפוסי האישיות של קרל יונג. תיאוריה זו מדברת על כך שיש לנו דרכים מנוגדות לכוון ולקבל אנרגיה (מוחצנות או מופנמות), לקלוט מידע (חושים או אינטואיציה), להחליט או להגיע למסקנות לגבי מידע זה (לוגיקה או הסכמה), ולגשת לעולם החיצון (מנוהל או מתנהל)."""},
-        3: {1: f"טיפוס האישיות שלך כפי שדווח:{mbti_info['type']}",
+        3: {1: f"טיפוס האישיות שלך כפי שדווח: {mbti_info['type']}",
+            # 2: f"**__ההעדפות שלך הן__\n{format_mbti_string}**",
             6: "DELETE",
             5: "DELETE"},
         4: {1: """__**תוצאות שלב 2 שלך**__
@@ -186,7 +188,7 @@ lines_to_remove = {
     0: [0, 1, 2, 3, 4, 5, 6, 7, 10, 11],
     1: "ALL",  # Skip entire page
     2: [0, 1, 2, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36,
-        37, 38, 39, 40, 41, 42],
+        37, 38, 39, 40, 41],
     3: "ALL",
     4: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
         27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39],

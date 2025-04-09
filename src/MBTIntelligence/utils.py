@@ -43,35 +43,17 @@ def get_all_info(file_path: str) -> Dict[str, Optional[str]]:
     return info
 
 
-def format_mbti_string(type_dict):
+def format_mbti_string(mbti_qualities: Dict[str, int]) -> str:
+    if not isinstance(mbti_qualities, dict):
+        return "Invalid input: expected a dictionary"
+
     formatted_items = []
-    for quality, score in type_dict.items():
+    for quality, score in mbti_qualities.items():
         if score != 0:  # Only include qualities with non-zero scores
             hebrew_quality = MBTI_QUALITIES_HEBREW.get(quality, quality)  # Use English if Hebrew not found
             formatted_items.append(f"{hebrew_quality}: {score}")
+
     return " | ".join(formatted_items)
-
-
-# def replace_mbti_line(file_path: str, output_path: str):
-#     with open(file_path, 'r', encoding='utf-8') as file:
-#         content = file.readlines()
-#
-#     qualities_scores = extract_mbti_qualities_scores(file_path)
-#     formatted_qualities = format_mbti_string(qualities_scores)
-#
-#     # Create a dynamic pattern based on non-zero qualities
-#     non_zero_qualities = [MBTI_QUALITIES_HEBREW[q] for q, score in qualities_scores.items() if score != 0]
-#     pattern = r'.*' + r'.*'.join(non_zero_qualities) + r'.*'
-#
-#     for i, line in enumerate(content):
-#         if re.match(pattern, line, re.IGNORECASE):
-#             content[i] = f"{formatted_qualities}\n"
-#             break  # Assuming there's only one such line, we can break after replacing
-#
-#     with open(output_path, 'w', encoding='utf-8') as file:
-#         file.writelines(content)
-#
-#     print(f"MBTI line replaced. Output saved to {output_path}")
 
 
 def extract_mbti_qualities_scores(file_path: str) -> Dict[str, int]:
@@ -145,22 +127,11 @@ def get_formatted_type_qualities(mbti_type: str) -> List[str]:
 
 
 if __name__ == '__main__':
-    file_path = r'F:\projects\MBTInteligence\output\nir-bensinai-MBTI_hebrew.txt'
+    file_path = r'F:\projects\MBTInteligence\output\kfir-shahar-267149-0ebcf35b-f6ff-ef11-aaa7-6045bd04b01a_fixed.txt'
     print(collect_preferred_qualities(file_path))
     mbti_type = find_type(file_path)
     print(mbti_type)
     print(get_formatted_type_qualities(mbti_type))
     mbti_type_qualities = MBTI_TYPE_QUALITIES.get(mbti_type, [])
     print(MBTI_TYPE_QUALITIES.get(mbti_type, [])[1])
-    # file_path = r'F:\projects\MBTInteligence\output\nir-bensinai-MBTI_hebrew.txt'
-    # info = get_all_info(file_path)
-    # qualities_scores = extract_mbti_qualities_scores(file_path)
-    # formatted_qualities = format_mbti_string(qualities_scores)
-    # print(f"File: {file_path}")
-    # print(f"Name: {info['name']}")
-    # print(f"Date: {info['date']}")
-    # print(f"MBTI Type: {info['type']}")
-    # print("MBTI Qualities Scores:")
-    # for quality, score in qualities_scores.items():
-    #     print(f"{quality}: {score}")
-    # print(formatted_qualities)
+    print(extract_mbti_qualities_scores(file_path))
