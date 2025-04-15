@@ -1,18 +1,27 @@
-SYSTEM_PROMPT = """You are a professional translator. Translate the following English text into formal, professional 
-Hebrew suitable for inclusion in a psychological assessment report, maintaining the original meaning and tone. Ensure 
-that the Hebrew text uses formal language and preserves the original structure and intent.
-
+SYSTEM_PROMPT = """You are a professional translator. Translate the following English text into formal, professional Hebrew suitable for inclusion in a psychological assessment report, maintaining the original meaning and tone. Ensure that the Hebrew text uses formal language and preserves the original structure and intent, with changes according to the specific instructions only.
 General Guidelines:
 1. Preserve the page count and structure exactly as in the original text.
 2. Use the following format to clearly separate pages: --- page # ---, where # is the page number.
 3. Ensure that all content from a specific page in the original text remains on the same page in the translation.
-4. Do not allow any content to spill over to the next page.
-5. Remove all empty rows.
-6. Translate "Extraversion" as "מוחצנות (Extraversion)" and "Introversion" as "מופנמות (Introversion)".
-7. Use bullet points (•) for lists within the table-like structures on pages 5-10.
-8. Do not translate MBTI type codes (e.g., ISTJ, ENFP). Keep these in their original English format.
-9. translate "in preference" to "בהעדפה".
-Specific Page Instructions:
+4. Remove all empty rows.
+5. Use bullet points (•) for lists within the table-like structures on pages 5-12
+6. Do not translate MBTI type codes (e.g., ISTJ, ENFP). Keep these in their original English format.
+7. when translation, take into account the specific translation instructions, and the specific page instructions.
+
+specific translation instructions:
+
+Extraversion: מוחצנות, Introversion: מופנמות, Sensing: חושיות
+Intuition: אינטואיטיביות
+Thinking: חשיבתיות
+Feeling: רגשיות
+Judging: שיפוטיות
+Perceiving: גמישות
+In-preference: בהעדפה
+midzone: אזור ביניים
+out-of-preference: מחוץ להעדפה
+Concrete, Abstract, Realistic, Imaginative, Practical, Conceptual, Experiential, Theoretical,
+Traditional, Original, Logical, Empathetic, Reasonable, Compassionate, Questioning, Accommodating,
+Critical, Accepting, Tough, Tender
 
 for page 3:
 1. for the specific section, make sure to structure the line like this example:
@@ -51,14 +60,6 @@ for pages 9,11,12 format each quality to be like this:
 • {table 2nd title} style: {line content}
 " enhancing your style: {line content}"
 
-for page 10: 
-1.seperate each quality with a new line, like this:
-"Concrete:What do we know? How do we know it? 
-Abstract: What else could this mean?
-Realistic: What are the real costs? 
-Imaginative: What else can we come up with?
-etc..."
-2. for each in-preferce quality in page 9,11,12; add **{line}** for the quality.
 
 Your primary goal is to produce a well-structured, accurately translated document that strictly adheres to the original
 page layout and content separation, while ensuring that MBTI-related terms are translated with their English equivalents in parentheses."""
@@ -157,6 +158,17 @@ o	**״מחוץ להעדפה״** – כלומר שייך לקוטב ההפוך מ
             },
         10: {1: """__**יישום תוצאות שלב II™ לקבלת החלטות**__
 קבלת החלטות יעילה דורשת איסוף מידע ממגוון נקודות מבט ויישום שיטות שונות להערכת מידע זה. ידע על פני שלב 2 נותן לנו דרכים ספציפיות לשפר את קבלת ההחלטות שלנו, במיוחד את ה׳פנים׳ הקשורות לחושים, אינטואיציה, חשיבה ורגש. להלן שאלות כלליות הקשורות לפנים אלה. קטבי הפנים שאתה מעדיף נמצאים בכתב נטוי כחול. אם אתה באזור הביניים, אף קוטב לא מודגש.""",
+             2: """חישה (SENSING) / אינטואיציה (INTUITION)\n\nקונקרטי (Concrete):\nמה אנחנו יודעים? איך אנחנו יודעים את זה?\n\n
+אבסטרקטי (Abstract):\nמה עוד זה יכול להביע?\n\nראליסטי (Realistic):\nמהם העלויות האמיתיות?\n\nבעל דמיון (Imaginative):
+מה עוד אפשר להמציא?\n\nמעשי (Practical):\nהאם זה יעבוד?\n\nרעיוני (Conceptual):\nאילו רעיונות מעניינים נוספים קיימים?\n
+התנסותי (Experiential):\nאתה יכול להראות לי איך זה עובד?\n\nתאורטי (Theoretical):\nאיך הכול מחובר זה לזה?\n
+שמרני (Traditional):\nהאם באמת צריך לשנות משהו?\n\nמקורי (Original):\nמהי דרך חדשה לעשות את זה?\n
+חשיבה (THINKING) / רגש (FEELING)\n\nהגיוני (Logical):\nמה היתרונות והחסרונות?\n\nאמפתי (Empathetic):
+מה אנחנו אוהבים או לא אוהבים בזה?\n\nרציונלי (Reasonable):\nמה ההשלכות הלוגיות?\n\nבעל חמלה (Compassionate):
+איך זה ישפיע על אנשים?\n\nמטיל ספק (Questioning):\nאבל מה לגבי…?\n\nמסתגל (Accommodating):\nאיך נוכל לשמח את כולם?\n
+ראייה ביקורתית (Critical):\nמה לא בסדר בזה?\n\nקבלה (Accepting):\nמה טוב בזה?\n\nקשוח (Tough):
+למה אנחנו לא ממשיכים עם זה עכשיו?\n\nעדין (Tender):\nמה עם האנשים שעלולים להיפגע?\n
+""",
              28: """ טיפים:
 בפתרון בעיות אישיות, התחל בשאילת כל השאלות מלמעלה.
 שימו לב היטב לתשובות. השאלות שכן מנוגדות לאלה המופיעות באותיות כחולות עשויות להיות מפתח מכיוון שהם מייצגות נקודות מבט שאינך צפוי לשקול.
@@ -199,7 +211,8 @@ lines_to_remove = {
     7: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
         27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38],
     8: [0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11],
-    9: [0, 1, 2, 3, 4, 5, 6, 7, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49],
+    9: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 37,
+        38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49],
     10: [0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12],
     11: [0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12],
     12: [0, 1, 2, 4, 5, 6, 7, 8, 27, 28, 29, 30, 31],
