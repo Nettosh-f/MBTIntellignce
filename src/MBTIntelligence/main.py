@@ -263,14 +263,6 @@ class MBTIProcessorGUI:
             self.master.after(0,
                               lambda: messagebox.showerror("Error", f"An error occurred during processing: {str(e)}"))
 
-    י:
-    מה
-    אנחנו
-    יודעים? איך
-    אנחנו
-    יודעים
-    את
-    זה?
     def open_output_folder(self):
         """Open the output folder in file explorer"""
         output_dir = os.path.join(self.root_dir, "output")

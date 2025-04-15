@@ -83,8 +83,8 @@ def collect_preferred_qualities(file_path: str) -> List[str]:
         with open(file_path, 'r', encoding='utf-8') as file:
             content = file.read()
 
-        # Pattern to match qualities with "(בהעדפה)"
-        pattern = r'\*\*([\w\s]+)\*\*\s*\(בהעדפה\)'
+        # Pattern to match qualities with "in-preference"
+        pattern = r'\*\*([\w\s]+)\*\*\s*\(in-preference\)'
 
         # Find all matches
         matches = re.findall(pattern, content)
@@ -127,7 +127,7 @@ def get_formatted_type_qualities(mbti_type: str) -> List[str]:
 
 
 if __name__ == '__main__':
-    file_path = r'F:\projects\MBTInteligence\output\kfir-shahar-267149-0ebcf35b-f6ff-ef11-aaa7-6045bd04b01a_fixed.txt'
+    file_path = r'F:\projects\MBTInteligence\output\nir-bensinai-MBTI_fixed.txt'
     print(collect_preferred_qualities(file_path))
     mbti_type = find_type(file_path)
     print(mbti_type)

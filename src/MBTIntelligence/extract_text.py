@@ -49,37 +49,50 @@ def extract_text_from_pdf(pdf_path, lines_to_remove_by_page):
 
 
 def process_pdf_file(file_path: str, lines_to_remove_config: Dict[int, Union[str, List[int]]]) -> str:
-    output_file_path = os.path.splitext(file_path)[0] + "-cleaned.txt"
+    base_name = os.path.splitext(os.path.basename(file_path))[0]
+    output_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(file_path))), "output")
+    os.makedirs(output_dir, exist_ok=True)
+
+    raw_output_path = os.path.join(output_dir, f"{base_name}_raw.txt")
+    cleaned_output_path = os.path.join(output_dir, f"{base_name}_cleaned.txt")
 
     try:
         with open(file_path, 'rb') as file:
             pdf_reader = PyPDF2.PdfReader(file)
             num_pages = len(pdf_reader.pages)
 
-            with open(output_file_path, 'w', encoding='utf-8') as output_file:
+            # First, save the raw extracted text
+            with open(raw_output_path, 'w', encoding='utf-8') as raw_file:
                 for page_num in range(num_pages):
-                    # Always write the page indicator
-                    output_file.write(f"--- Page {page_num + 1} ---\n")
+                    raw_file.write(f"--- Page {page_num + 1} ---\n")
+                    page = pdf_reader.pages[page_num]
+                    text = page.extract_text()
+                    raw_file.write(text + '\n\n')
+
+            print(f"Raw extracted text saved to: {raw_output_path}")
+
+            # Now process and save the cleaned text
+            with open(cleaned_output_path, 'w', encoding='utf-8') as cleaned_file:
+                for page_num in range(num_pages):
+                    cleaned_file.write(f"--- Page {page_num + 1} ---\n")
 
                     if page_num in lines_to_remove_config:
                         config = lines_to_remove_config[page_num]
                         if config == "ALL":
-                            # Skip content but keep page indicator
-                            output_file.write("\n")
+                            cleaned_file.write("\n")
                             continue
                         elif isinstance(config, list):
                             page = pdf_reader.pages[page_num]
                             text = page.extract_text().split('\n')
                             text = [line for i, line in enumerate(text) if i not in config]
-                            output_file.write('\n'.join(text) + '\n\n')
+                            cleaned_file.write('\n'.join(text) + '\n\n')
                     else:
-                        # If page is not in config, include all content
                         page = pdf_reader.pages[page_num]
                         text = page.extract_text()
-                        output_file.write(text + '\n\n')
+                        cleaned_file.write(text + '\n\n')
 
-        print(f"Processed PDF saved to: {output_file_path}")
-        return output_file_path
+        print(f"Cleaned text saved to: {cleaned_output_path}")
+        return cleaned_output_path
 
     except FileNotFoundError:
         print(f"Error: The file {file_path} was not found.")
