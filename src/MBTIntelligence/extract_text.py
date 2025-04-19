@@ -49,10 +49,14 @@ def extract_text_from_pdf(pdf_path, lines_to_remove_by_page):
 
 
 def process_pdf_file(file_path: str, lines_to_remove_config: Dict[int, Union[str, List[int]]]) -> str:
-    base_name = os.path.splitext(os.path.basename(file_path))[0]
-    output_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(file_path))), "output")
+    # Get the project root directory (assuming the script is in src/MBTIntelligence/)
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+
+    # Create the output directory in the project root
+    output_dir = os.path.join(project_root, "output")
     os.makedirs(output_dir, exist_ok=True)
 
+    base_name = os.path.splitext(os.path.basename(file_path))[0]
     raw_output_path = os.path.join(output_dir, f"{base_name}_raw.txt")
     cleaned_output_path = os.path.join(output_dir, f"{base_name}_cleaned.txt")
 

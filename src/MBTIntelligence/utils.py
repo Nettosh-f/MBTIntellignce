@@ -1,10 +1,11 @@
 import re
 from typing import Optional, Dict, List
 
+
 try:
-    from .consts import MBTI_TYPES, MBTI_QUALITIES, MBTI_TYPE_QUALITIES, MBTI_QUALITIES_HEBREW
+    from .consts import MBTI_TYPES, MBTI_QUALITIES, MBTI_TYPE_QUALITIES, MBTI_QUALITIES_HEBREW, page_10_content
 except ImportError:
-    from consts import MBTI_TYPES, MBTI_QUALITIES, MBTI_TYPE_QUALITIES, MBTI_QUALITIES_HEBREW
+    from consts import MBTI_TYPES, MBTI_QUALITIES, MBTI_TYPE_QUALITIES, MBTI_QUALITIES_HEBREW, page_10_content
 
 
 def find_type(file_path: str) -> Optional[str]:
@@ -83,11 +84,11 @@ def collect_preferred_qualities(file_path: str) -> List[str]:
         with open(file_path, 'r', encoding='utf-8') as file:
             content = file.read()
 
-        # Pattern to match qualities with "in-preference"
-        pattern = r'\*\*([\w\s]+)\*\*\s*\(in-preference\)'
+        # Updated pattern to match "in-preference" and the following word
+        pattern = r'\(in-preference\)[-\s]*(\w+)'
 
         # Find all matches
-        matches = re.findall(pattern, content)
+        matches = re.findall(pattern, content, re.IGNORECASE | re.MULTILINE)
 
         # Add matches to the list
         preferred_qualities.extend(matches)
@@ -126,12 +127,62 @@ def get_formatted_type_qualities(mbti_type: str) -> List[str]:
     return formatted_qualities
 
 
+def extract_in_preference_facets(file_path):
+    in_preference_facets = []
+    
+    with open(file_path, 'r', encoding='utf-8') as file:
+        content = file.read()
+    
+    # Pattern to match facet name followed by "in-preference"
+    pattern = r'(\w+)\s+in-preference'
+    
+    # Find all matches
+    matches = re.findall(pattern, content, re.IGNORECASE)
+    
+    # Filter out common words, "type", and numbers, then add matches to the list
+    excluded_words = {'an', 'in', 'the', 'of', 'and', 'to', 'a', 'type'}
+    in_preference_facets = [
+        facet for facet in matches 
+        if facet.lower() not in excluded_words 
+        and not facet.isdigit()
+        and not any(char.isdigit() for char in facet)
+    ]
+    
+    print(f"Found {len(in_preference_facets)} in-preference facets.")
+    return in_preference_facets
+
+
+def format_page_10_content(content, in_preference_facets):
+    formatted_content = []
+    i = 0
+    while i < len(content):
+        line = content[i]
+        
+        # Check if the line contains any of the facets (in English), ignoring case
+        if any(f"({facet})".lower() in line.lower() for facet in in_preference_facets):
+            # Format the facet line (which is in Hebrew with English in parentheses)
+            formatted_content.append(f"**{line.strip()}**")
+            
+            # Add the description (next line) without bolding
+            if i + 1 < len(content):
+                description = content[i+1].strip()
+                formatted_content.append(description)
+                i += 1  # Skip the next line as we've already processed it
+            
+            # Add an empty line after each facet and its description
+            formatted_content.append("")
+        else:
+            formatted_content.append(line)
+        i += 1
+    return formatted_content
+
+
 if __name__ == '__main__':
-    file_path = r'F:\projects\MBTInteligence\output\nir-bensinai-MBTI_fixed.txt'
-    print(collect_preferred_qualities(file_path))
-    mbti_type = find_type(file_path)
-    print(mbti_type)
-    print(get_formatted_type_qualities(mbti_type))
-    mbti_type_qualities = MBTI_TYPE_QUALITIES.get(mbti_type, [])
-    print(MBTI_TYPE_QUALITIES.get(mbti_type, [])[1])
-    print(extract_mbti_qualities_scores(file_path))
+    file_path = r'F:\projects\MBTInteligence\output\nir-bensinai-MBTI_raw.txt'
+    fixed_file_path = r'F:\projects\MBTInteligence\output\nir-bensinai-MBTI_fixed.txt'
+    facets = extract_in_preference_facets(file_path)
+    print("In-preference facets:", facets)
+    formatted_page_10 = format_page_10_content(page_10_content, facets)
+    print("\nFormatted Page 10 Content:")
+    for line in formatted_page_10:
+        print(line)

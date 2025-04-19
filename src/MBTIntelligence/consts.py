@@ -19,9 +19,7 @@ Perceiving: גמישות
 In-preference: בהעדפה
 midzone: אזור ביניים
 out-of-preference: מחוץ להעדפה
-Concrete, Abstract, Realistic, Imaginative, Practical, Conceptual, Experiential, Theoretical,
-Traditional, Original, Logical, Empathetic, Reasonable, Compassionate, Questioning, Accommodating,
-Critical, Accepting, Tough, Tender
+
 
 for page 3:
 1. for the specific section, make sure to structure the line like this example:
@@ -33,7 +31,7 @@ to:
 make sure to enter the currect values and qualities from the original text.
 make sure to translate the rest of the page as well.
 
-For pages 5-9, structure the content as if extracted from a table. For example:
+For pages 5-8, structure the content as if extracted from a table. For example:
 
 Original:
 "Ways to connect with others
@@ -60,7 +58,7 @@ for pages 9,11,12 format each quality to be like this:
 • {table 2nd title} style: {line content}
 " enhancing your style: {line content}"
 
-
+make sure you adhere to the specific page instructions and format. failure is not an option.
 Your primary goal is to produce a well-structured, accurately translated document that strictly adheres to the original
 page layout and content separation, while ensuring that MBTI-related terms are translated with their English equivalents in parentheses."""
 
@@ -117,9 +115,52 @@ MBTI_TYPE_QUALITIES = {
     "ENFJ": ["Extraversion", "Intuition", "Feeling", "Judging"],
     "ENTJ": ["Extraversion", "Intuition", "Thinking", "Judging"]
 }
+page_10_content = [
+    "חישה (SENSING) / אינטואיציה (INTUITION)\n",
+    "קונקרטי (Concrete):\n"
+    "מה אנחנו יודעים? איך אנחנו יודעים את זה?\n",
+    "אבסטרקטי (Abstract):\n"
+    "מה עוד זה יכול להביע?\n",
+    "ראליסטי (Realistic):\n"
+    "מהם העלויות האמיתיות?\n",
+    "בעל דמיון (Imaginative):\n"
+    "מה עוד אפשר להמציא?\n",
+    "מעשי (Practical):\n"
+    "האם זה יעבוד?\n",
+    "רעיוני (Conceptual):\n"
+    "אילו רעיונות מעניינים נוספים קיימים?\n",
+    "התנסותי (Experiential):\n"
+    "אתה יכול להראות לי איך זה עובד?\n",
+    "תאורטי (Theoretical):\n"
+    "איך הכול מחובר זה לזה?\n",
+    "שמרני (Traditional):\n"
+    "האם באמת צריך לשנות משהו?\n",
+    "מקורי (Original):\n"
+    "מהי דרך חדשה לעשות את זה?\n",
+    "חשיבה (THINKING) / רגש (FEELING)\n",
+    "הגיוני (Logical):\n"
+    "מה היתרונות והחסרונות?\n",
+    "אמפתי (Empathetic):\n"
+    "מה אנחנו אוהבים או לא אוהבים בזה?\n",
+    "רציונלי (Reasonable):\n"
+    "מה ההשלכות הלוגיות?\n",
+    "בעל חמלה (Compassionate):\n"
+    "איך זה ישפיע על אנשים?\n",
+    "מטיל ספק (Questioning):\n"
+    "אבל מה לגבי…?\n",
+    "מסתגל (Accommodating):\n"
+    "איך נוכל לשמח את כולם?\n",
+    "ראייה ביקורתית (Critical):\n"
+    "מה לא בסדר בזה?\n",
+    "קבלה (Accepting):\n"
+    "מה טוב בזה?\n",
+    "קשוח (Tough):\n"
+    "למה אנחנו לא ממשיכים עם זה עכשיו?\n",
+    "עדין (Tender):\n"
+    "מה עם האנשים שעלולים להיפגע?"]
 
 
-def fixed_text_data(mbti_info, mbti_type_qualities):
+def fixed_text_data(mbti_info, mbti_type_qualities, page_10_content):
     fixed_text_const = {
         1: {5: """תרגום החוברת מבוצע בין השאר (אך לא רק) על ידי מערכות בינה מלאכותית (AI), ולכן התרגום עלול להיות לא מדויק.\n 
 באחריות המשתמש להשתמש בו בצמוד לחוברת הפרשנות המקורית והרשמית (MYER-BRIGGS TYPE INDICATOR™).\n
@@ -157,18 +198,8 @@ o	**״מחוץ להעדפה״** – כלומר שייך לקוטב ההפוך מ
 4.	להבין שאחרים כנראה לא מנסים להרגיז אותך כשהם משתמשים בסגנונות התקשורת שלהם."""
             },
         10: {1: """__**יישום תוצאות שלב II™ לקבלת החלטות**__
-קבלת החלטות יעילה דורשת איסוף מידע ממגוון נקודות מבט ויישום שיטות שונות להערכת מידע זה. ידע על פני שלב 2 נותן לנו דרכים ספציפיות לשפר את קבלת ההחלטות שלנו, במיוחד את ה׳פנים׳ הקשורות לחושים, אינטואיציה, חשיבה ורגש. להלן שאלות כלליות הקשורות לפנים אלה. קטבי הפנים שאתה מעדיף נמצאים בכתב נטוי כחול. אם אתה באזור הביניים, אף קוטב לא מודגש.""",
-             2: """חישה (SENSING) / אינטואיציה (INTUITION)\n\nקונקרטי (Concrete):\nמה אנחנו יודעים? איך אנחנו יודעים את זה?\n\n
-אבסטרקטי (Abstract):\nמה עוד זה יכול להביע?\n\nראליסטי (Realistic):\nמהם העלויות האמיתיות?\n\nבעל דמיון (Imaginative):
-מה עוד אפשר להמציא?\n\nמעשי (Practical):\nהאם זה יעבוד?\n\nרעיוני (Conceptual):\nאילו רעיונות מעניינים נוספים קיימים?\n
-התנסותי (Experiential):\nאתה יכול להראות לי איך זה עובד?\n\nתאורטי (Theoretical):\nאיך הכול מחובר זה לזה?\n
-שמרני (Traditional):\nהאם באמת צריך לשנות משהו?\n\nמקורי (Original):\nמהי דרך חדשה לעשות את זה?\n
-חשיבה (THINKING) / רגש (FEELING)\n\nהגיוני (Logical):\nמה היתרונות והחסרונות?\n\nאמפתי (Empathetic):
-מה אנחנו אוהבים או לא אוהבים בזה?\n\nרציונלי (Reasonable):\nמה ההשלכות הלוגיות?\n\nבעל חמלה (Compassionate):
-איך זה ישפיע על אנשים?\n\nמטיל ספק (Questioning):\nאבל מה לגבי…?\n\nמסתגל (Accommodating):\nאיך נוכל לשמח את כולם?\n
-ראייה ביקורתית (Critical):\nמה לא בסדר בזה?\n\nקבלה (Accepting):\nמה טוב בזה?\n\nקשוח (Tough):
-למה אנחנו לא ממשיכים עם זה עכשיו?\n\nעדין (Tender):\nמה עם האנשים שעלולים להיפגע?\n
-""",
+קבלת החלטות יעילה דורשת איסוף מידע ממגוון נקודות מבט ויישום שיטות שונות להערכת מידע זה. ידע על פני שלב 2 נותן לנו דרכים ספציפיות לשפר את קבלת ההחלטות שלנו, במיוחד את ה׳פנים׳ הקשורות לחושים, אינטואיציה, חשיבה ורגש. להלן שאלות כלליות הקשורות לפנים אלה. קטבי הפנים שאתה מעדיף נמצאים בכתב מודגש. אם אתה באזור הביניים, אף קוטב לא מודגש.""",
+             2: page_10_content,
              28: """ טיפים:
 בפתרון בעיות אישיות, התחל בשאילת כל השאלות מלמעלה.
 שימו לב היטב לתשובות. השאלות שכן מנוגדות לאלה המופיעות באותיות כחולות עשויות להיות מפתח מכיוון שהם מייצגות נקודות מבט שאינך צפוי לשקול.
