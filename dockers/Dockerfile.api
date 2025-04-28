@@ -1,0 +1,11 @@
+FROM mbti/base
+
+WORKDIR /opt/MBTIIntelignce/
+
+COPY ./ ./
+
+RUN ls -la
+
+RUN make install
+
+ENTRYPOINT [ "make", "dev" ]
